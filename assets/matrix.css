@@ -358,3 +358,57 @@
             .comment-box { display: none !important; }
             .comment-print-output { display: block !important; }
         }
+
+        /* --- MODE SOMBRE --- */
+        @media screen {
+            body[data-theme="dark"] {
+                background-color: #020617;
+                color: #cbd5e1;
+            }
+
+            body[data-theme="dark"] .matrix-container {
+                background: #0f172a;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+            }
+
+            body[data-theme="dark"] h1,
+            body[data-theme="dark"] .company-label {
+                color: #e2e8f0;
+            }
+
+            body[data-theme="dark"] .description { color: #94a3b8; }
+
+            body[data-theme="dark"] .company-input {
+                color: #60a5fa;
+            }
+
+            body[data-theme="dark"] .company-input:focus {
+                background-color: #0f172a;
+            }
+
+            body[data-theme="dark"] .instructions {
+                background-color: #1e293b;
+            }
+
+            body[data-theme="dark"] th {
+                background-color: #1e293b;
+            }
+
+            body[data-theme="dark"] .col-principle {
+                color: #e2e8f0;
+            }
+
+            body[data-theme="dark"] .col-comment {
+                background-color: #0f172a;
+            }
+
+            body[data-theme="dark"] strong {
+                color: #e2e8f0;
+            }
+
+            body[data-theme="dark"] .comment-box {
+                background-color: #0f172a;
+                color: #e2e8f0;
+                border-color: #475569;
+            }
+        }

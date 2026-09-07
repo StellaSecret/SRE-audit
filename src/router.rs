@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 use dioxus_router::Routable;
 
 use crate::i18n;
+use crate::theme;
 use crate::views::{home::Home, matrix::Matrix, roadmap::Roadmap};
 use sre_audit::services::auth;
 
@@ -20,11 +21,17 @@ pub enum Route {
 pub fn NavLayout() -> Element {
     let mut lang: Signal<i18n::Lang> = use_context();
     let auth_sig: Signal<auth::AuthState> = use_context();
+    let mut theme_sig: Signal<theme::Theme> = use_context();
 
     let toggle_lang = move |_: MouseEvent| {
         let mut l = lang();
         l = l.toggle();
         lang.set(l);
+    };
+
+    let toggle_theme = move |_: MouseEvent| {
+        let t = theme_sig();
+        theme_sig.set(t.toggle());
     };
 
     let email = auth_sig.read().profile.as_ref().map(|p| p.email.clone());
@@ -55,6 +62,13 @@ pub fn NavLayout() -> Element {
                         span { class: "nav-email", "{e}" }
                     }
                     button { class: "nav-toggle", onclick: toggle_lang, "{lang().label()}" }
+                    button { class: "nav-theme", onclick: toggle_theme,
+                        {if theme_sig().is_dark() {
+                            i18n::tr("theme_light", lang())
+                        } else {
+                            i18n::tr("theme_dark", lang())
+                        }}
+                    }
                     button { class: "nav-signout", onclick: sign_out,
                         {i18n::tr("nav_signout", lang())}
                     }

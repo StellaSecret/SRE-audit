@@ -2,6 +2,7 @@
 
 mod i18n;
 mod router;
+mod theme;
 mod views;
 
 use dioxus::prelude::*;
@@ -50,6 +51,9 @@ fn App() -> Element {
     let lang = use_signal(i18n::Lang::detect);
     use_context_provider(|| lang);
 
+    let theme = use_signal(theme::Theme::detect);
+    use_context_provider(|| theme);
+
     // Reactive mirror of the static auth state. The lib notifies this signal on
     // every auth transition (sign-in, verify, deny, sign-out).
     let auth_sig = use_signal(auth::get_state);
@@ -65,6 +69,18 @@ fn App() -> Element {
     use_effect(move || {
         let l = lang();
         l.persist();
+    });
+
+    use_effect(move || {
+        let t = theme();
+        t.persist();
+        #[cfg(target_arch = "wasm32")]
+        if let Some(body) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.body())
+        {
+            let _ = body.set_attribute("data-theme", t.attr());
+        }
     });
 
     #[cfg(target_arch = "wasm32")]

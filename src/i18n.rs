@@ -83,6 +83,8 @@ fn en(key: &str) -> &str {
         "nav_matrix" => "Maturity Matrix",
         "nav_roadmap" => "Roadmap",
         "nav_signout" => "Sign out",
+        "theme_dark" => "Dark",
+        "theme_light" => "Light",
 
         "login_title" => "SRE Audit - Restricted Access",
         "login_subtitle" => "Sign in with your Google account to access the SRE audit tools.",
@@ -162,6 +164,8 @@ fn fr(key: &str) -> &str {
         "nav_matrix" => "Matrice de Maturité",
         "nav_roadmap" => "Roadmap",
         "nav_signout" => "Se déconnecter",
+        "theme_dark" => "Sombre",
+        "theme_light" => "Clair",
 
         "login_title" => "SRE Audit - Accès Restreint",
         "login_subtitle" => "Connectez-vous avec votre compte Google pour accéder aux outils d'audit SRE.",

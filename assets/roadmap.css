@@ -205,3 +205,49 @@
             .editable-area { display: none !important; }
             .print-text { block !important; }
         }
+
+        /* --- MODE SOMBRE --- */
+        @media screen {
+            body[data-theme="dark"] {
+                background-color: #020617;
+                color: #cbd5e1;
+            }
+
+            body[data-theme="dark"] .container {
+                background: #0f172a;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+            }
+
+            body[data-theme="dark"] h1,
+            body[data-theme="dark"] .section-title {
+                color: #e2e8f0;
+            }
+
+            body[data-theme="dark"] .meta-info { color: #94a3b8; }
+
+            body[data-theme="dark"] th {
+                background-color: #1e293b;
+            }
+
+            body[data-theme="dark"] .w-principle {
+                color: #e2e8f0;
+            }
+
+            body[data-theme="dark"] .editable-area:hover {
+                background-color: #1e293b;
+            }
+
+            body[data-theme="dark"] .editable-area:focus {
+                background-color: #0f172a;
+            }
+
+            body[data-theme="dark"] .time-marker {
+                background-color: #1e293b;
+                color: #cbd5e1;
+                border-color: #334155;
+            }
+
+            body[data-theme="dark"] .status-flash {
+                background-color: #1e293b;
+            }
+        }
