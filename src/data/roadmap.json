@@ -1,0 +1,202 @@
+{
+  "st": [
+    {
+      "id": "st_obs",
+      "num": 1,
+      "title": "Observability",
+      "process": "⚙️ Incident Management",
+      "badges": [
+        "Niveau 2 : Organisé"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_slo",
+      "num": 2,
+      "title": "SLO / SLI",
+      "process": "⚙️ Service Level & Collaboration",
+      "badges": [
+        "Niveau 2 : Organisé"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_risk",
+      "num": 3,
+      "title": "Risk & Chaos",
+      "process": "⚙️ Problem & Knowledge",
+      "badges": [
+        "Niveau 2 : Organisé"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_toil",
+      "num": 4,
+      "title": "Eliminating Toil",
+      "process": "⚙️ Amélioration Continue (CSI)",
+      "badges": [
+        "Niveau 1 : Réactif"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_auto",
+      "num": 5,
+      "title": "Automation",
+      "process": "⚙️ Service Request Mgmt",
+      "badges": [
+        "Niveau 3 : Proactif"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_release",
+      "num": 6,
+      "title": "Release Engineering",
+      "process": "⚙️ Change Management",
+      "badges": [
+        "Niveau 2.5 : Hybride"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": "st_simp",
+      "num": 7,
+      "title": "Simplicity",
+      "process": "⚙️ Configuration / SACM",
+      "badges": [
+        "Niveau 1 : Réactif"
+      ],
+      "areas": [
+        "",
+        "",
+        ""
+      ]
+    }
+  ],
+  "lt": [
+    {
+      "id": "lt_obs",
+      "num": 1,
+      "title": "Observability",
+      "process": "⚙️ Incident Management",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_slo",
+      "num": 2,
+      "title": "SLO / SLI",
+      "process": "⚙️ Service Level & Collaboration",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_risk",
+      "num": 3,
+      "title": "Risk & Chaos",
+      "process": "⚙️ Problem & Knowledge",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_toil",
+      "num": 4,
+      "title": "Eliminating Toil",
+      "process": "⚙️ Amélioration Continue (CSI)",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_auto",
+      "num": 5,
+      "title": "Automation",
+      "process": "⚙️ Service Request Mgmt",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_release",
+      "num": 6,
+      "title": "Release Engineering",
+      "process": "⚙️ Change Management",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    },
+    {
+      "id": "lt_simp",
+      "num": 7,
+      "title": "Simplicity",
+      "process": "⚙️ Configuration / SACM",
+      "badges": [
+        "Année 1 12M"
+      ],
+      "areas": [
+        "",
+        ""
+      ],
+      "vision": ""
+    }
+  ]
+}

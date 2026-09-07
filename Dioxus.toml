@@ -1,0 +1,9 @@
+[application]
+name = "sre-audit"
+
+[web]
+title = "SRE Audit"
+base_path = "/SRE-audit"
+
+[web.watcher]
+reload_html = true

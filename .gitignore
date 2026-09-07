@@ -1,0 +1,14 @@
+# Build artifacts
+/target
+/dist
+
+# Emails premium (avec le secret GitHub correspondant)
+.premium_emails.txt
+
+# Node / Playwright
+node_modules/
+playwright-report/
+test-results/
+
+# Dioxus
+*.wasm

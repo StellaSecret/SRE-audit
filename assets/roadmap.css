@@ -1,0 +1,207 @@
+:root {
+            --primary: #0f172a;
+            --secondary: #2563eb;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --text: #334155;
+            --border: #cbd5e1;
+            --light-bg: #f8fafc;
+            
+            --st-bg: #fff7ed;
+            --st-text: #c2410c;
+            --lt-bg: #eff6ff;
+            --lt-text: #1d4ed8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            line-height: 1.5;
+            background-color: #f1f5f9;
+            padding: 30px;
+            font-size: 13px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            max-width: 1650px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .meta-info {
+            font-size: 14px;
+            color: #475569;
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save { background-color: var(--success); }
+        .btn-save:hover { background-color: #15803d; }
+        .btn-export { background-color: var(--secondary); }
+        .btn-export:hover { background-color: #1d4ed8; }
+
+        .section-title {
+            font-size: 16px;
+            color: var(--primary);
+            margin: 25px 0 15px 0;
+            padding-left: 8px;
+            border-left: 4px solid var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .w-principle { width: 18%; font-weight: bold; background-color: var(--light-bg); }
+        .w-horizon { width: 32%; }
+        .w-actions { width: 35%; }
+        .w-kpi { width: 15%; }
+
+        .horizon-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .badge-st { background-color: var(--st-bg); color: var(--st-text); border: 1px solid #fed7aa; }
+        .badge-lt { background-color: var(--lt-bg); color: var(--lt-text); border: 1px solid #bfdbfe; }
+
+        .time-marker {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .editable-area {
+            width: 100%;
+            min-height: 110px;
+            border: 1px dashed transparent;
+            background-color: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            color: inherit;
+            resize: vertical;
+            padding: 4px;
+            transition: all 0.2s;
+        }
+
+        .editable-area:hover {
+            border-color: var(--border);
+            background-color: #fafafa;
+        }
+
+        .editable-area:focus {
+            outline: none;
+            border-style: solid;
+            border-color: var(--secondary);
+            background-color: #ffffff;
+        }
+
+        .print-text {
+            display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status-flash {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+        }
+
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body { padding: 0; background-color: #ffffff; font-size: 10px; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .btn-group, .instructions { display: none !important; }
+            th { background-color: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .editable-area { display: none !important; }
+            .print-text { block !important; }
+        }

@@ -1,0 +1,247 @@
+name: CI/CD SRE-audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  security-events: write
+  actions: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DIOXUS_CLI_VERSION: "0.7.9"
+
+jobs:
+  # ── SECURITY SCAN ─────────────────────────────────────
+  scan-secrets:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          # Mirrors PeopleModeler pin: v3.96.0 has a Lob detector regression.
+          version: 3.88.0
+          path: ./
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+          head: ${{ github.sha }}
+          extra_args: --only-verified
+
+  # ── RUST CORE ─────────────────────────────────────────
+  rust-core:
+    name: Rust Core (test + WASM check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test
+      - name: Check WASM build
+        run: cargo check --target wasm32-unknown-unknown --bin sre-audit
+
+  # ── WEB (WASM) BUILD ──────────────────────────────────
+  web-build:
+    name: Build WASM
+    needs: [rust-core, scan-secrets]
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Install system deps
+        run: apt update && apt install -y build-essential
+      - name: Install Dioxus CLI
+        run: |
+          curl -sSLO https://github.com/DioxusLabs/dioxus/releases/download/v${DIOXUS_CLI_VERSION}/dx-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf dx-x86_64-unknown-linux-gnu.tar.gz
+          install -m 755 dx /usr/local/bin/dx
+      - name: "Build WASM (e2e bundle: trusted session + e2e allowlist)"
+        env:
+          SRE_AUDIT_E2E: "1"
+          PREMIUM_EMAILS: "e2e@test.local"
+          GOOGLE_CLIENT_ID: "000000000000-00000000000000000000000000000000.apps.googleusercontent.com"
+        run: |
+          cargo clean -p sre-audit
+          dx build --release --package sre-audit --base-path /SRE-audit
+      - name: "Verify e2e bundle baked (option_env marker)"
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          base = 'target/dx/sre-audit/release/web/public'
+          html = open(os.path.join(base, 'index.html')).read()
+          js_name = re.search(r'/SRE-audit/assets/(sre-audit-dx[a-z0-9]+\.js)', html).group(1)
+          js = open(os.path.join(base, 'assets', js_name)).read()
+          m = re.search(r'sre-audit_bg-[a-z0-9]+\.wasm', js)
+          if not m:
+              print("::error::could not locate served wasm in JS bundle")
+              sys.exit(1)
+          wasm = os.path.join(base, 'assets', m.group(0))
+          data = open(wasm, 'rb').read()
+          if b'e2e@test.local' not in data:
+              print(f"::error::{m.group(0)} does not contain e2e marker (env not baked)")
+              sys.exit(1)
+          print(f"e2e marker present in {m.group(0)}")
+          PY
+      - name: Install npm deps
+        run: npm ci
+      - name: Upload WASM build
+        uses: actions/upload-artifact@v7
+        with:
+          name: wasm-public
+          path: target/dx/sre-audit/release/web/public/
+          retention-days: 1
+
+  # ── PLAYWRIGHT E2E TESTS (SHARDED) ────────────────────
+  playwright-tests:
+    name: Playwright Tests (shard ${{ matrix.shard }}/2)
+    needs: [web-build]
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download WASM build
+        uses: actions/download-artifact@v8
+        with:
+          name: wasm-public
+          path: target/dx/sre-audit/release/web/public/
+      - name: Install npm deps
+        run: npm ci
+      - name: Run e2e tests (shard ${{ matrix.shard }}/2)
+        env:
+          HOME: /root
+          DOCKER_CONFIG: /tmp/.docker
+        run: npx playwright test --reporter=list,html --shard=${{ matrix.shard }}/2
+      - name: Upload report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 30
+
+  # ── PRODUCTION WEB BUILD (real secrets, distinct from the e2e bundle) ─────
+  web-build-prod:
+    name: Build Production WASM
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [rust-core, scan-secrets]
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Install system deps
+        run: apt update && apt install -y build-essential
+      - name: Install Dioxus CLI
+        run: |
+          curl -sSLO https://github.com/DioxusLabs/dioxus/releases/download/v${DIOXUS_CLI_VERSION}/dx-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf dx-x86_64-unknown-linux-gnu.tar.gz
+          install -m 755 dx /usr/local/bin/dx
+      - name: "Build production bundle (bakes real secrets, no e2e flag)"
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          PREMIUM_EMAILS: ${{ secrets.PREMIUM_EMAILS }}
+        run: |
+          cargo clean -p sre-audit
+          dx build --release --package sre-audit --base-path /SRE-audit
+      - name: "Guard: production bundle must NOT carry the e2e marker"
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          base = 'target/dx/sre-audit/release/web/public'
+          html = open(os.path.join(base, 'index.html')).read()
+          js_name = re.search(r'/SRE-audit/assets/(sre-audit-dx[a-z0-9]+\.js)', html).group(1)
+          js = open(os.path.join(base, 'assets', js_name)).read()
+          m = re.search(r'sre-audit_bg-[a-z0-9]+\.wasm', js)
+          if not m:
+              print("::error::could not locate served wasm in JS bundle")
+              sys.exit(1)
+          data = open(os.path.join(base, 'assets', m.group(0)), 'rb').read()
+          if b'e2e@test.local' in data:
+              print(f"::error::{m.group(0)} still contains e2e marker — refusing to deploy a soft-gated app")
+              sys.exit(1)
+          print(f"prod bundle OK: no e2e marker in {m.group(0)}")
+          PY
+      - name: Upload production WASM build
+        uses: actions/upload-artifact@v7
+        with:
+          name: wasm-public-prod
+          path: target/dx/sre-audit/release/web/public/
+          retention-days: 1
+
+  # ── DEPLOY WEB TO GITHUB PAGES ────────────────────────
+  # Publishes the pre-built production artifact (mirrors PeopleModeler);
+  # no rebuild on the runner (bare apt is non-root and cannot lock apt lists).
+  deploy-web:
+    name: Deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [playwright-tests, web-build-prod]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download production WASM build
+        uses: actions/download-artifact@v8
+        with:
+          name: wasm-public-prod
+          path: ./wasm-dist/
+      - name: Merge WASM build into Pages content
+        run: |
+          mkdir -p public
+          cp -r wasm-dist/* public/
+          rm -rf wasm-dist
+      - name: Add SPA fallback and cache-control for GitHub Pages
+        run: |
+          if [ -f public/index.html ]; then
+            find public/ -type f \( -name '*.html' -o -name '*.js' \) \
+              -exec sed -i 's|/\./assets/|/SRE-audit/assets/|g' {} +
+            cp public/index.html public/404.html
+          fi
+          # Cache headers: HTML fresh always, JS/WASM immutable (hashed names)
+          cat > public/_headers << 'EOF'
+          /*.html
+            Cache-Control: no-cache
+          /SRE-audit/assets/*.js
+            Cache-Control: public, max-age=31536000, immutable
+          /SRE-audit/assets/*.wasm
+            Cache-Control: public, max-age=31536000, immutable
+          EOF
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public/
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

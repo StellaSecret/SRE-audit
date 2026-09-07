@@ -1,0 +1,530 @@
+{
+ "rows": [
+  {
+   "id": 1,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Silos & Boîte Noire",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Alertes Up/Down infrastructure basiques. Pannes découvertes via les plaintes ou tickets des utilisateurs au support."
+      },
+      {
+       "label": "Sécurité",
+       "text": "Aucune corrélation performance/sécurité. Visibilité nulle en cas d'attaque en cours."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Collecte Centralisée",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "APM installé, mais alertes denses et bruyantes. Traitement séquentiel manuel des alertes par les Ops."
+      },
+      {
+       "label": "Sécurité",
+       "text": "Centralisation des logs dans un puits unique sans détection comportementale active."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Observabilité Métier",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Alertes nettoyées et routées automatiquement vers la bonne équipe produit selon les symptômes utilisateurs."
+      },
+      {
+       "label": "Sécurité",
+       "text": "Logs d'accès et d'audit corrélés en temps réel pour identifier les anomalies de trafic (DDoS)."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Source Unique",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Écosystème d'observabilité unifié (traces/logs/métriques). Détection prédictive par IA et corrélation native."
+      },
+      {
+       "label": "Sécurité",
+       "text": "Observabilité de sécurité native (RASP) avec isolation automatique des workloads affectés."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 1,
+   "title": "Observability",
+   "aspect": "Incident & Sécurité",
+   "process": "⚙️ Gestion d'Incident"
+  },
+  {
+   "id": 2,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Absence d'Objectifs",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Silos profonds (\"Chaque équipe sa vérité\"). Conflit permanent Dev vs Ops. Rétention ou fragmentation des informations."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Pas de métriques communes succès."
+      },
+      {
+       "label": "FinOps",
+       "text": "Dimensionnements d'infrastructure faits au hasard (sur-provisionnement structurel)."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "SLA Contractuels",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Partage d'informations réactif ou forcé par la hiérarchie. Outils collaboratifs (Jira/Confluence) fragmentés et non synchronisés."
+      },
+      {
+       "label": "Processus IT",
+       "text": "SLA existants mais purement juridiques, déconnectés de l'expérience vécue par l'utilisateur."
+      },
+      {
+       "label": "FinOps",
+       "text": "Facturation cloud globale sans possibilité de lier le coût à l'usage réel d'un service."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "SLI/SLO Métier",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Alignement tripartite (Dev/Ops/Métier). Espaces de documentation centralisés et partagés, favorisant l'entraide inter-équipes."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Définition d'indicateurs de performance calqués sur les parcours clients réels."
+      },
+      {
+       "label": "FinOps",
+       "text": "Coût unitaire par service identifié. Infrastructure rationalisée et ajustée selon le SLO ciblé."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Gouvernance Valeur",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Culture produit unifiée. Transparence totale de la donnée de performance. La fiabilité est portée comme un objectif d'entreprise partagé."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Les SLO servent de juge de paix automatisé pour arbitrer la feuille de route produit (fiabilité vs fonctionnalités)."
+      },
+      {
+       "label": "FinOps",
+       "text": "Optimisation dynamique continue de la capacité (Right-sizing) selon le strict respect du SLO."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 2,
+   "title": "SLO / SLI",
+   "aspect": "Culture & FinOps",
+   "process": "⚙️ Gestion des Niveaux de Service"
+  },
+  {
+   "id": 3,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Illusion du 100%",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Culture du blâme. Recherche de coupables en cas d'incident technique. Dissimulation des erreurs par peur des sanctions."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Post-mortems inexistants. Mode \"pompier\" permanent."
+      },
+      {
+       "label": "Chaos",
+       "text": "Les tests de résistance se font par accident, subis en production lors des crises majeures."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Acceptation Passive",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Information partagée uniquement au sein de l'équipe impactée."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Post-mortems existants mais limités aux actions de contournement à chaud (pas d'analyse des causes racines)."
+      },
+      {
+       "label": "Chaos",
+       "text": "Revues de pannes théoriques \"sur table\" (Game Days documentaires) sans injection réelle."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Gestion Rationnelle",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "Généralisation des \"Blameless Post-mortem\" (analyses sans blâme). Diffusion transverse des retours d'expérience pour initier l'ensemble du collectif."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Actions correctives pérennes financées par l'Error Budget."
+      },
+      {
+       "label": "Chaos",
+       "text": "Injections manuelles et contrôlées de pannes applicatives en environnement de Staging ou Préproduction."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Gouvernance Active",
+     "items": [
+      {
+       "label": "Collaboration",
+       "text": "L'apprentissage par l'échec est valorisé et institutionnalisé. Sessions collectives de partage de pannes (Game Days)."
+      },
+      {
+       "label": "Processus IT",
+       "text": "Épuisement de l'Error Budget bloquant automatiquement les releases au profit des tâches de stabilité."
+      },
+      {
+       "label": "Chaos",
+       "text": "Chaos Engineering automatisé et continu directement en Production (validation continue de la résilience)."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 3,
+   "title": "Risk & Chaos",
+   "aspect": "Culture & Résilience",
+   "process": "⚙️ Gestion des Problèmes / Continuité"
+  },
+  {
+   "id": 4,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Asphyxie Manuelle",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": ">80% du temps absorbé par des gestes manuels répétitifs. Améliorations impossibles par manque de temps."
+      },
+      {
+       "label": "Efficacité",
+       "text": "Sensation permanente de subir le run. Dépendance totale envers l'héroïsme individuel des experts."
+      },
+      {
+       "label": "Astreintes",
+       "text": "Subies exclusivement par les Ops. Alertes nocturnes fréquentes et souvent fausses (bruit). Fort épuisement (Burnout)."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Standardisation",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Calcul et suivi quantitatif du Toil. Centralisation des procédures pour réduire la dépendance aux experts isolés."
+      },
+      {
+       "label": "Efficacité",
+       "text": "Centralisation des procédures réduisant la dépendance exclusive aux experts isolés."
+      },
+      {
+       "label": "Astreintes",
+       "text": "Escalades et planning d'astreinte formalisés. Runbooks pas-à-pas disponibles pour guider l'humain la nuit."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Réduction Tactique",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Automatisation industrialisée des processus de run identifiés comme les plus chronophages. Transfert documenté vers le support N1."
+      },
+      {
+       "label": "Efficacité",
+       "text": "Allègement du quotidien ; transfert documenté des tâches de run récurrentes vers le support N1."
+      },
+      {
+       "label": "Astreintes",
+       "text": "Nettoyage des alertes (seuls les impacts clients réveillent). Début d'implication des Devs dans le support ou les escalades de niveau 2/3."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Temps Sanctuarisé",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Plafond de Toil limité à 50% max (le reste est sanctuarisé). Éradication des alertes via des boucles d'auto-remédiation logicielle."
+      },
+      {
+       "label": "Efficacité",
+       "text": "Éradication des tickets manuels redondants via des boucles d'auto-remédiation logicielle permanentes."
+      },
+      {
+       "label": "Astreintes",
+       "text": "Partagées équitablement (Dev/SRE). Charge de tokens d'incidents plafonnée par garde. Alertes n'appelant qu'à de l'ingénierie."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 4,
+   "title": "Eliminating Toil",
+   "aspect": "Amélioration Continue",
+   "process": "⚙️ Amélioration Continue (CSI)"
+  },
+  {
+   "id": 5,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Gestes Ad-Hoc",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Traitement par tickets manuels (Jira/Mail) de chaque demande élémentaire (ex: ouverture d'accès, briques de middleware)."
+      },
+      {
+       "label": "IaC",
+       "text": "Absence d'IaC. Serveurs modifiés à la main directement en production (Drift complet)."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Fragmentée",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Scripts d'automatisation écrits par les Ops mais déclenchés manuellement pour le compte des Devs."
+      },
+      {
+       "label": "IaC",
+       "text": "Provisionnement outillé localement via des scripts isolés sur les postes de travail."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Industrialisée",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Catalogue de services outillé (ex: AWX) permettant de traiter automatiquement les demandes courantes."
+      },
+      {
+       "label": "IaC",
+       "text": "IaC (Terraform, Ansible) centralisée, partagée et exécutée via des orchestrateurs communs."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Écosystème Continu",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Portail d'ingénierie interne complet (IDP) assurant l'autonomie instantanée des équipes sans ticket."
+      },
+      {
+       "label": "IaC",
+       "text": "Modèle 100% déclaratif (GitOps). Tout écart hors code est écrasé et réconcilié automatiquement."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 5,
+   "title": "Automation",
+   "aspect": "IaC & Plateformes",
+   "process": "⚙️ Demandes de Services"
+  },
+  {
+   "id": 6,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Artisanale",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Déploiements manuels nocturnes stressants. validations basées sur des fichiers Excel ou réunions."
+      },
+      {
+       "label": "CI/CD",
+       "text": "Validation humaine ou \"au clic\" en production, sans tests de bout en bout automatisés."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Pipelines Basiques",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Passage devant un CAB (Change Advisory Board) hebdomadaire manuel pour obtenir l'approbation de mise en production."
+      },
+      {
+       "label": "CI/CD",
+       "text": "Pipelines CI/CD basiques (tests unitaires isolés), mais validations de sécurité non bloquantes."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Validation Continue",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "CAB allégé ou automatisé pour les changements standards pré-approuvés et documentés par l'outil."
+      },
+      {
+       "label": "CI/CD",
+       "text": "Exécution systématique de suites de tests de bout en bout (E2E) et scans DevSecOps bloquants en cas de faille."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "GitOps & Canary",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Suppression du CAB humain. Remplacé par du **Compliance-as-Code** validant les métriques automatiquement."
+      },
+      {
+       "label": "CI/CD",
+       "text": "Déploiements progressifs (Canary) managés par le code, corrélés aux retours des SLO en temps réel."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 6,
+   "title": "Release Eng.",
+   "aspect": "CI/CD & DevSecOps",
+   "process": "⚙️ Changements & Déploiements"
+  },
+  {
+   "id": 7,
+   "levels": [
+    {
+     "level": 1,
+     "badge": "Complexité Fragile",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "CMDB/Inventaire obsolète car géré manuellement. Éléments orphelins inconnus."
+      },
+      {
+       "label": "Outillage",
+       "text": "Prolifération et fragmentation d'outils redondants selon les équipes. Forte charge cognitive."
+      },
+      {
+       "label": "Résilience",
+       "text": "Architecture \"château de cartes\". PRA complexe et purement théorique."
+      }
+     ]
+    },
+    {
+     "level": 2,
+     "badge": "Simplification",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Inventaires des configurations lancés périodiquement de manière semi-automatique."
+      },
+      {
+       "label": "Outillage",
+       "text": "Début de cartographie des outils. Choix de standards théoriques, mais les exceptions locales persistent."
+      },
+      {
+       "label": "Résilience",
+       "text": "Redondance d'infrastructure en place, mais les bascules en cas de panne (failover) restent manuelles."
+      }
+     ]
+    },
+    {
+     "level": 3,
+     "badge": "Découplée & Rationalisée",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Le dépôt de code Git (IaC) remplace la CMDB et devient la source de vérité de l'état du système."
+      },
+      {
+       "label": "Outillage",
+       "text": "Consolidation autour d'une stack de référence unique (Voie Pavée) éliminant les doublons d'outils."
+      },
+      {
+       "label": "Résilience",
+       "text": "Logiciel découplé gérant le mode dégradé de manière transparente. Tests de bascule réguliers."
+      }
+     ]
+    },
+    {
+     "level": 4,
+     "badge": "Native & Sobre",
+     "items": [
+      {
+       "label": "Processus IT",
+       "text": "Audit de configuration continu. Élimination automatique du code mort et des ressources inutilisées."
+      },
+      {
+       "label": "Outillage",
+       "text": "Stack logicielle minimaliste, optimisée et partagée via le portail interne (IDP). Zéro redondance."
+      },
+      {
+       "label": "Résilience",
+       "text": "Bascules inter-régions entièrement automatisées sans interruption de service pour l'utilisateur."
+      }
+     ]
+    }
+   ],
+   "comment": "",
+   "num": 7,
+   "title": "Simplicity",
+   "aspect": "Architecture & Sobriété",
+   "process": "⚙️ Config. & Actifs (SACM)"
+  }
+ ]
+}

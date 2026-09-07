@@ -1,0 +1,48 @@
+#!/bin/sh
+# Pre-commit hook: fast correctness gates before every commit.
+# Enabled via: git config core.hooksPath .githooks
+set -e
+
+# ── 1. Rust — fmt ──────────────────────────────────────────
+RUST_STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.rs$' || true)
+if [ -n "$RUST_STAGED" ]; then
+  echo "==> cargo fmt --check"
+  cargo fmt --all -- --check
+  FMT_EXIT=$?
+  if [ $FMT_EXIT -ne 0 ]; then
+    echo "❌ cargo fmt: incorrect. Running cargo fmt..."
+    cargo fmt --all
+    echo "   → Auto-formatted. Re-stage and commit."
+    exit 1
+  fi
+
+  echo "==> cargo clippy -- -D warnings"
+  cargo clippy --all-targets -- -D warnings
+fi
+
+# ── 2. Rust — test + WASM check ────────────────────────────
+echo "==> cargo test (lib + bin)"
+cargo test
+
+echo "==> cargo check wasm32 (bin)"
+cargo check --target wasm32-unknown-unknown --bin sre-audit
+
+# ── 3. Gitleaks — secret scan (if installed) ───────────────
+if command -v gitleaks > /dev/null 2>&1; then
+  echo "==> gitleaks protect --staged"
+  gitleaks protect --staged -v
+else
+  echo "ℹ️  gitleaks not installed — skipped"
+fi
+
+# ── 4. Large file guard (>500 KB) ──────────────────────────
+LARGE=$(git diff --cached --name-only | while read f; do
+  [ -f "$f" ] && size=$(wc -c < "$f") && [ "$size" -gt 512000 ] && echo "$f ($((size/1024)) KB)"
+done) || true
+if [ -n "$LARGE" ]; then
+  echo "❌ Staged file(s) too large (>500 KB):"
+  echo "$LARGE"
+  exit 1
+fi
+
+echo "==> all pre-commit checks passed"

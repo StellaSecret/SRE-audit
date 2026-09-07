@@ -1,0 +1,17 @@
+{
+  "name": "sre-audit-web",
+  "version": "1.0.0",
+  "description": "SRE Audit — Web e2e tests",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "build": "echo 'Static site - no build needed'",
+    "build:dioxus": "dx build --release --package sre-audit --base-path /SRE-audit",
+    "preview": "serve target/dx/sre-audit/release/web/public -p 4173"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "serve": "^14.2.6"
+  }
+}

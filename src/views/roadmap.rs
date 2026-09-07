@@ -1,0 +1,311 @@
+use crate::i18n;
+use dioxus::prelude::*;
+use sre_audit::data;
+use sre_audit::models::RoadmapState;
+use sre_audit::services::{drive, storage};
+
+/// Row ids of the legacy roadmap cache — ST and LT tables have a fixed order
+/// mirroring `src/data/roadmap.json`. Kept here (rather than captured through
+/// rsx closures) so event handlers only capture Copy indices.
+const ST_IDS: [&str; 7] = [
+    "st_obs",
+    "st_slo",
+    "st_risk",
+    "st_toil",
+    "st_auto",
+    "st_release",
+    "st_simp",
+];
+const LT_IDS: [&str; 7] = [
+    "lt_obs",
+    "lt_slo",
+    "lt_risk",
+    "lt_toil",
+    "lt_auto",
+    "lt_release",
+    "lt_simp",
+];
+
+fn set_field(
+    mut state: Signal<RoadmapState>,
+    is_st: bool,
+    row: usize,
+    col: usize,
+    e: Event<FormData>,
+) {
+    let ids: &[&str] = if is_st { &ST_IDS } else { &LT_IDS };
+    let Some(key) = ids.get(row) else { return };
+    let val = e.value();
+    let mut w = state.write();
+    let map = if is_st { &mut w.st } else { &mut w.lt };
+    let entry = map.entry((*key).to_string()).or_default();
+    if entry.len() <= col {
+        entry.resize(col + 1, String::new());
+    }
+    entry[col] = val.clone();
+    sre_audit::services::print::mirror(&format!("sre_road_{key}_{col}"), &val);
+}
+
+#[component]
+pub fn Roadmap() -> Element {
+    let lang: Signal<i18n::Lang> = use_context();
+    let l = *lang.read();
+
+    let data = data::roadmap();
+    let state = use_signal(|| storage::load_roadmap().unwrap_or_default());
+    let mut flash = use_signal(|| Option::<String>::None);
+    let mut busy = use_signal(|| false);
+
+    let t_title = i18n::tr("roadmap_title", l);
+    let t_meta = i18n::tr("roadmap_meta", l);
+    let t_save = i18n::tr("save", l);
+    let t_pdf = i18n::tr("export_pdf", l);
+    let t_export_json = i18n::tr("export_json", l);
+    let t_import_json = i18n::tr("import_json", l);
+    let t_drive_up = i18n::tr("drive_upload", l);
+    let t_drive_down = i18n::tr("drive_restore", l);
+    let t_hint = i18n::tr("drive_hint", l);
+    let t_st_title = i18n::tr("roadmap_st_title", l);
+    let t_lt_title = i18n::tr("roadmap_lt_title", l);
+
+    let do_save = move |_: MouseEvent| {
+        {
+            let s = state.read().clone();
+            storage::save_roadmap(&s);
+        }
+        flash.set(Some(i18n::tr("flash_saved", l)));
+    };
+
+    let do_export_json = move |_: MouseEvent| {
+        let s = state.read().clone();
+        drive::local_download("sre_roadmap.json", &drive::build_roadmap_backup(&s));
+    };
+
+    let do_import_json = move |e: Event<FormData>| {
+        if let Some(file) = e.files().first() {
+            let file = file.clone();
+            let l = l;
+            let mut busy_clone = busy;
+            let mut state_clone = state;
+            let mut flash_clone = flash;
+            spawn(async move {
+                let text = match file.read_string().await {
+                    Ok(t) => t,
+                    Err(_) => {
+                        flash_clone.set(Some(i18n::tr("flash_import_err", l)));
+                        busy_clone.set(false);
+                        return;
+                    }
+                };
+                match drive::restore_roadmap_backup(&text) {
+                    Ok(s) => {
+                        state_clone.set(s);
+                        storage::save_roadmap(&state_clone.read());
+                        flash_clone.set(Some(i18n::tr("flash_import_ok", l)));
+                    }
+                    Err(_) => {
+                        flash_clone.set(Some(i18n::tr("flash_import_err", l)));
+                    }
+                }
+                busy_clone.set(false);
+            });
+            busy.set(true);
+        }
+    };
+
+    let do_drive_upload = move |_: MouseEvent| {
+        let token = sre_audit::services::auth::get_state().token.clone();
+        if token.is_empty() {
+            flash.set(Some(i18n::tr("error", l)));
+            return;
+        }
+        let s = state.read().clone();
+        let json = drive::build_roadmap_backup(&s);
+        let mut busy_clone = busy;
+        let mut flash_clone = flash;
+        busy_clone.set(true);
+        spawn(async move {
+            match drive::drive_upload("sre_roadmap_data.json", &json, &token).await {
+                Ok(_) => flash_clone.set(Some(i18n::tr("flash_drive_up", l))),
+                Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
+            }
+            busy_clone.set(false);
+        });
+    };
+
+    let do_drive_restore = move |_: MouseEvent| {
+        let token = sre_audit::services::auth::get_state().token.clone();
+        if token.is_empty() {
+            flash.set(Some(i18n::tr("error", l)));
+            return;
+        }
+        let mut busy_clone = busy;
+        let mut state_clone = state;
+        let mut flash_clone = flash;
+        busy_clone.set(true);
+        spawn(async move {
+            match drive::drive_download("sre_roadmap_data.json", &token).await {
+                Ok(text) => match drive::restore_roadmap_backup(&text) {
+                    Ok(s) => {
+                        state_clone.set(s);
+                        storage::save_roadmap(&state_clone.read());
+                        flash_clone.set(Some(i18n::tr("flash_drive_down", l)));
+                    }
+                    Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
+                },
+                Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
+            }
+            busy_clone.set(false);
+        });
+    };
+
+    let do_export_pdf = move |_: MouseEvent| {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(w) = web_sys::window() {
+            let _ = w.print();
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let _ = ();
+        }
+    };
+
+    rsx! {
+        div { class: "container",
+            div { class: "header",
+                h1 { "{t_title}" }
+                div { class: "meta-info", "{t_meta}" }
+                div { class: "button-group",
+                    button { class: "btn btn-save", onclick: do_save,
+                        "{t_save}"
+                    }
+                    button { class: "btn btn-export", onclick: do_export_pdf,
+                        "{t_pdf}"
+                    }
+                }
+            }
+
+            if let Some(f) = flash() {
+                div { class: "toolbar-flash", "{f}" }
+            }
+
+            div { class: "toolbar",
+                button { class: "btn btn-export", onclick: do_export_json, disabled: busy(),
+                    "{t_export_json}"
+                }
+                input { id: "roadmap-import-input", r#type: "file", accept: ".json",
+                    style: "display:none", onchange: do_import_json }
+                label { class: "btn btn-export", "for": "roadmap-import-input",
+                    "{t_import_json}"
+                }
+                button { class: "btn btn-export", onclick: do_drive_upload, disabled: busy(),
+                    "{t_drive_up}"
+                }
+                button { class: "btn btn-export", onclick: do_drive_restore, disabled: busy(),
+                    "{t_drive_down}"
+                }
+            }
+
+            div { class: "drive-hint", "{t_hint}" }
+
+            div { class: "section-title", "{t_st_title}" }
+            table {
+                thead {
+                    tr {
+                        th { class: "w-principle", {i18n::tr("roadmap_st_h1", l)} }
+                        th { class: "w-horizon", {i18n::tr("roadmap_st_h2", l)} }
+                        th { class: "w-actions", {i18n::tr("roadmap_st_h3", l)} }
+                        th { class: "w-kpi", {i18n::tr("roadmap_st_h4", l)} }
+                    }
+                }
+                tbody {
+                    for (i, row) in data.st.iter().enumerate() {
+                        tr {
+                            td { class: "w-principle",
+                                b { "{row.num}. {row.title}" }
+                                br {}
+                                small { style: "color:#64748b;", "{row.process}" }
+                            }
+                            for (idx, _area) in row.areas.iter().enumerate() {
+                                td {
+                                    if idx == 0 {
+                                        if let Some(b) = row.badges.first() {
+                                            div { class: "horizon-badge badge-st", "{b}" }
+                                        }
+                                    }
+                                    textarea {
+                                        id: "sre_road_{row.id}_{idx}",
+                                        class: "editable-area",
+                                        value: state().field(&row.id, idx).to_string(),
+                                        oninput: move |e| set_field(state, true, i, idx, e),
+                                    }
+                                    div { class: "print-text", "data-print-for": "sre_road_{row.id}_{idx}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            div { class: "section-title", "{t_lt_title}" }
+            table {
+                thead {
+                    tr {
+                        th { class: "w-principle", {i18n::tr("roadmap_lt_h1", l)} }
+                        th { class: "w-horizon", {i18n::tr("roadmap_lt_h2", l)} }
+                        th { class: "w-actions", {i18n::tr("roadmap_lt_h3", l)} }
+                        th { class: "w-horizon", {i18n::tr("roadmap_lt_h4", l)} }
+                    }
+                }
+                tbody {
+                    for (i, row) in data.lt.iter().enumerate() {
+                        tr {
+                            td { class: "w-principle",
+                                b { "{row.num}. {row.title}" }
+                                br {}
+                                small { style: "color:#64748b;", "{row.process}" }
+                            }
+                            for (idx, _area) in row.areas.iter().enumerate() {
+                                td {
+                                    if idx == 0 {
+                                        if let Some(b) = row.badges.first() {
+                                            div { class: "horizon-badge badge-lt", "{b}" }
+                                        }
+                                    }
+                                    textarea {
+                                        id: "sre_road_{row.id}_{idx}",
+                                        class: "editable-area",
+                                        value: state().field(&row.id, idx).to_string(),
+                                        oninput: move |e| set_field(state, false, i, idx, e),
+                                    }
+                                    div { class: "print-text", "data-print-for": "sre_road_{row.id}_{idx}" }
+                                }
+                            }
+                            td {
+                                if !row.vision.is_empty() {
+                                    div { class: "horizon-badge badge-lt vision",
+                                        "{row.vision}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn id_tables_match_data() {
+        let d = data::roadmap();
+        let st: Vec<&str> = d.st.iter().map(|r| r.id.as_str()).collect();
+        let lt: Vec<&str> = d.lt.iter().map(|r| r.id.as_str()).collect();
+        assert_eq!(st, ST_IDS);
+        assert_eq!(lt, LT_IDS);
+    }
+}
