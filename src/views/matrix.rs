@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use sre_audit::data;
 use sre_audit::models::MatrixState;
 use sre_audit::orgs::OrgStore;
-use sre_audit::services::{drive, storage};
+use sre_audit::services::{drive, print, storage};
 
 fn select_level(mut state: Signal<MatrixState>, row_id: u8, level: u8) {
     state
@@ -44,6 +44,22 @@ pub fn Matrix() -> Element {
     use_effect(move || {
         let id = current_id();
         state.set(storage::load_matrix(&id).unwrap_or_default());
+    });
+    // Keep the hidden print mirrors in sync with loaded state (they are only
+    // set via set_comment on input; values restored from storage or another
+    // org would otherwise never make it into the PDF).
+    let comment_ids_raw: Vec<(String, String)> = data
+        .rows
+        .iter()
+        .map(|r| (format!("sre_matrix_c_{}", r.id), r.id.to_string()))
+        .collect();
+    let comment_ids = use_memo(move || comment_ids_raw.clone());
+    use_effect(move || {
+        let s = state.read();
+        for (mirror_id, row_id) in comment_ids() {
+            let val = s.comments.get(&row_id).map(String::as_str).unwrap_or("");
+            print::mirror(&mirror_id, val);
+        }
     });
     let mut flash = use_signal(|| Option::<String>::None);
     let mut busy = use_signal(|| false);
