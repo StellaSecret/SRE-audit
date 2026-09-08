@@ -73,9 +73,6 @@ pub fn Matrix() -> Element {
     let t_instructions = i18n::tr("matrix_instructions", l);
     let t_export_json = i18n::tr("export_json", l);
     let t_import_json = i18n::tr("import_json", l);
-    let t_drive_up = i18n::tr("drive_upload", l);
-    let t_drive_down = i18n::tr("drive_restore", l);
-    let t_hint = i18n::tr("drive_hint", l);
     let t_comment_ph = i18n::tr("matrix_comment_ph", l);
 
     let org_id_rename = org_id.clone();
@@ -137,56 +134,6 @@ pub fn Matrix() -> Element {
         }
     };
 
-    let do_drive_upload = move |_: MouseEvent| {
-        let token = sre_audit::services::auth::get_state().token.clone();
-        if token.is_empty() {
-            flash.set(Some(i18n::tr("error", l)));
-            return;
-        }
-        let s = state.read().clone();
-        let json = drive::build_matrix_backup(&s);
-        let id = current.read().current.clone();
-        let fname = drive::matrix_file(&id);
-        let mut busy_clone = busy;
-        let mut flash_clone = flash;
-        busy_clone.set(true);
-        spawn(async move {
-            match drive::drive_upload(&fname, &json, &token).await {
-                Ok(_) => flash_clone.set(Some(i18n::tr("flash_drive_up", l))),
-                Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
-            }
-            busy_clone.set(false);
-        });
-    };
-
-    let do_drive_restore = move |_: MouseEvent| {
-        let token = sre_audit::services::auth::get_state().token.clone();
-        if token.is_empty() {
-            flash.set(Some(i18n::tr("error", l)));
-            return;
-        }
-        let id = current.read().current.clone();
-        let fname = drive::matrix_file(&id);
-        let mut busy_clone = busy;
-        let mut state_clone = state;
-        let mut flash_clone = flash;
-        busy_clone.set(true);
-        spawn(async move {
-            match drive::drive_download(&fname, &token).await {
-                Ok(text) => match drive::restore_matrix_backup(&text) {
-                    Ok(s) => {
-                        state_clone.set(s.clone());
-                        storage::save_matrix(&id, &s);
-                        flash_clone.set(Some(i18n::tr("flash_drive_down", l)));
-                    }
-                    Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
-                },
-                Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
-            }
-            busy_clone.set(false);
-        });
-    };
-
     let do_export_pdf = move |_: MouseEvent| {
         #[cfg(target_arch = "wasm32")]
         if let Some(w) = web_sys::window() {
@@ -244,15 +191,7 @@ pub fn Matrix() -> Element {
                 label { class: "btn btn-export", "for": "matrix-import-input",
                     "{t_import_json}"
                 }
-                button { class: "btn btn-export", onclick: do_drive_upload, disabled: busy(),
-                    "{t_drive_up}"
-                }
-                button { class: "btn btn-export", onclick: do_drive_restore, disabled: busy(),
-                    "{t_drive_down}"
-                }
             }
-
-            div { class: "drive-hint", "{t_hint}" }
 
             table {
                 thead {

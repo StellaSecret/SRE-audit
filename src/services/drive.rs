@@ -4,28 +4,13 @@
 // restore. Works with the access token obtained in auth.rs.
 
 use crate::models::{MatrixState, RoadmapState};
+use crate::orgs::OrgStore;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
-const MATRIX_FILE: &str = "sre_matrix_data.json";
-const ROADMAP_FILE: &str = "sre_roadmap_data.json";
-
-/// Per-org Drive file names. The default org ("") keeps the legacy names so
-/// existing Drive backups keep working unchanged.
-pub fn matrix_file(org_id: &str) -> String {
-    if org_id.is_empty() {
-        MATRIX_FILE.to_string()
-    } else {
-        format!("{MATRIX_FILE}__{org_id}")
-    }
-}
-
-pub fn roadmap_file(org_id: &str) -> String {
-    if org_id.is_empty() {
-        ROADMAP_FILE.to_string()
-    } else {
-        format!("{ROADMAP_FILE}__{org_id}")
-    }
-}
+/// Single Drive file holding the whole app state: every audited organisation
+/// with its Matrix and Roadmap. Replaces the old per-org/per-type files.
+pub const GLOBAL_BACKUP_FILE: &str = "sre_audit_global_backup.json";
 
 #[cfg(target_arch = "wasm32")]
 const DRIVE_API: &str = "https://www.googleapis.com/drive/v3/files";
@@ -46,6 +31,18 @@ struct RoadmapBackup {
     version: u8,
     exported_at: i64,
     data: RoadmapState,
+}
+
+/// Full snapshot: organisation list + every org's Matrix and Roadmap state.
+#[derive(Serialize, Deserialize)]
+pub struct GlobalBackup {
+    pub version: u8,
+    pub exported_at: i64,
+    pub orgs: OrgStore,
+    #[serde(default)]
+    pub matrices: BTreeMap<String, MatrixState>,
+    #[serde(default)]
+    pub roadmaps: BTreeMap<String, RoadmapState>,
 }
 
 const BACKUP_VERSION: u8 = 1;
@@ -77,6 +74,26 @@ pub fn restore_roadmap_backup(json: &str) -> Result<RoadmapState, String> {
     let b: RoadmapBackup =
         serde_json::from_str(json).map_err(|e| format!("Invalid backup: {e}"))?;
     Ok(b.data)
+}
+
+pub fn build_global_backup(
+    orgs: &OrgStore,
+    matrices: &BTreeMap<String, MatrixState>,
+    roadmaps: &BTreeMap<String, RoadmapState>,
+) -> String {
+    let b = GlobalBackup {
+        version: BACKUP_VERSION,
+        exported_at: now_ms(),
+        orgs: orgs.clone(),
+        matrices: matrices.clone(),
+        roadmaps: roadmaps.clone(),
+    };
+    serde_json::to_string_pretty(&b).expect("global backup serialization failed")
+}
+
+pub fn restore_global_backup(json: &str) -> Result<GlobalBackup, String> {
+    let b: GlobalBackup = serde_json::from_str(json).map_err(|e| format!("Invalid backup: {e}"))?;
+    Ok(b)
 }
 
 // ── HTTP helpers (WASM) ──────────────────────────────────────────────────────
@@ -311,6 +328,52 @@ mod tests {
         let restored = restore_roadmap_backup(&json).unwrap();
         assert_eq!(restored, s);
         assert_eq!(restored.field("st_obs", 1), "b");
+    }
+
+    #[test]
+    fn global_backup_roundtrip() {
+        let orgs = crate::orgs::OrgStore {
+            orgs: vec![
+                crate::orgs::Organization {
+                    id: String::new(),
+                    name: "Default".into(),
+                },
+                crate::orgs::Organization {
+                    id: "abc".into(),
+                    name: "ACME".into(),
+                },
+            ],
+            current: "abc".into(),
+        };
+        let mut matrices = BTreeMap::new();
+        matrices.insert(String::new(), sample_matrix());
+        matrices.insert(
+            "abc".to_string(),
+            MatrixState {
+                company_name: "ACME Corp".into(),
+                ..MatrixState::default()
+            },
+        );
+        let mut roadmaps = BTreeMap::new();
+        roadmaps.insert(
+            "abc".to_string(),
+            RoadmapState {
+                st: [("st_obs".to_string(), vec!["x".into()])]
+                    .into_iter()
+                    .collect(),
+                lt: Default::default(),
+            },
+        );
+        let json = build_global_backup(&orgs, &matrices, &roadmaps);
+        let restored = restore_global_backup(&json).unwrap();
+        assert_eq!(restored.orgs, orgs);
+        assert_eq!(restored.matrices, matrices);
+        assert_eq!(restored.roadmaps, roadmaps);
+    }
+
+    #[test]
+    fn global_backup_rejects_invalid() {
+        assert!(restore_global_backup("garbage").is_err());
     }
 
     #[test]

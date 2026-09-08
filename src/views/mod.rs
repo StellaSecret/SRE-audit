@@ -1,3 +1,4 @@
+pub mod backup;
 pub mod denied;
 pub mod home;
 pub mod login;

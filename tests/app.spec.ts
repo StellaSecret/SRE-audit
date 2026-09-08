@@ -26,6 +26,10 @@ test.describe('SRE Audit App', () => {
     await nav.getByRole('link', { name: /Roadmap/i }).click();
     await expect(page).toHaveURL(/\/SRE-audit\/roadmap/);
     await expect(page.locator('table')).toHaveCount(2);
+
+    await nav.getByRole('link', { name: /Backup|Sauvegarde/i }).click();
+    await expect(page).toHaveURL(/\/SRE-audit\/backup/);
+    await expect(page.locator('.btn-export')).toHaveCount(2);
   });
 
   test('matrix renders the 7 SRE principles with level cells', async ({ page }) => {
