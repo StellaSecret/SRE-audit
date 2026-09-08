@@ -62,12 +62,12 @@ test.describe('SRE Audit App', () => {
     expect(ltRows).toBeGreaterThanOrEqual(5);
   });
 
-  test('language toggle flips the header language', async ({ page }) => {
-    await seedSession(page);
-    const toggle = page.locator('.nav-toggle');
-    await expect(toggle).toHaveCount(1);
-    await toggle.click();
-    const body = await page.locator('body').innerText();
-    expect(body).toMatch(/FEUILLE DE ROUTE|Matrice de Maturité SRE|Feuille de Route/);
-  });
+test('language toggle flips the header language', async ({ page }) => {
+      await seedSession(page);
+      const toggle = page.locator('.nav-toggle');
+      await expect(toggle).toHaveCount(1);
+      await toggle.click();
+      const body = await page.locator('body').innerText();
+      expect(body).toMatch(/Organisations auditées|Organisations audited/i);
+    });
 });

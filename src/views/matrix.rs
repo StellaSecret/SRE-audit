@@ -2,6 +2,7 @@ use crate::i18n;
 use dioxus::prelude::*;
 use sre_audit::data;
 use sre_audit::models::MatrixState;
+use sre_audit::orgs::OrgStore;
 use sre_audit::services::{drive, storage};
 
 fn select_level(mut state: Signal<MatrixState>, row_id: u8, level: u8) {
@@ -28,7 +29,22 @@ pub fn Matrix() -> Element {
     let data = data::matrix();
     let rows_ids_raw: Vec<u8> = data.rows.iter().map(|r| r.id).collect();
     let row_ids = use_memo(move || rows_ids_raw.clone());
-    let mut state = use_signal(|| storage::load_matrix().unwrap_or_default());
+    let mut current = use_context::<Signal<OrgStore>>();
+    let org_id = current.read().current.clone();
+    let current_id = use_memo(move || current.read().current.clone());
+    let org_name = current
+        .read()
+        .current_org()
+        .map(|o| o.name.clone())
+        .unwrap_or_default();
+    let mut state = use_signal({
+        let org_id = org_id.clone();
+        move || storage::load_matrix(&org_id).unwrap_or_default()
+    });
+    use_effect(move || {
+        let id = current_id();
+        state.set(storage::load_matrix(&id).unwrap_or_default());
+    });
     let mut flash = use_signal(|| Option::<String>::None);
     let mut busy = use_signal(|| false);
 
@@ -46,21 +62,30 @@ pub fn Matrix() -> Element {
     let t_hint = i18n::tr("drive_hint", l);
     let t_comment_ph = i18n::tr("matrix_comment_ph", l);
 
+    let org_id_rename = org_id.clone();
     let set_company = move |e: Event<FormData>| {
-        state.write().company_name = e.value();
+        let val = e.value();
+        state.write().company_name = val.clone();
+        current.write().rename_org(&org_id_rename, &val);
     };
 
     let do_save = move |_: MouseEvent| {
+        let id = current.read().current.clone();
         {
             let s = state.read().clone();
-            storage::save_matrix(&s);
+            storage::save_matrix(&id, &s);
         }
         flash.set(Some(i18n::tr("flash_saved", l)));
     };
 
     let do_export_json = move |_: MouseEvent| {
         let s = state.read().clone();
-        drive::local_download("sre_matrix_audit.json", &drive::build_matrix_backup(&s));
+        let fname = if org_id.is_empty() {
+            "sre_matrix_audit.json".to_string()
+        } else {
+            format!("sre_matrix_audit_{org_id}.json")
+        };
+        drive::local_download(&fname, &drive::build_matrix_backup(&s));
     };
 
     let do_import_json = move |e: Event<FormData>| {
@@ -81,8 +106,9 @@ pub fn Matrix() -> Element {
                 };
                 match drive::restore_matrix_backup(&text) {
                     Ok(s) => {
-                        state_clone.set(s);
-                        storage::save_matrix(&state_clone.read());
+                        state_clone.set(s.clone());
+                        let id = current.read().current.clone();
+                        storage::save_matrix(&id, &s);
                         flash_clone.set(Some(i18n::tr("flash_import_ok", l)));
                     }
                     Err(_) => {
@@ -103,11 +129,13 @@ pub fn Matrix() -> Element {
         }
         let s = state.read().clone();
         let json = drive::build_matrix_backup(&s);
+        let id = current.read().current.clone();
+        let fname = drive::matrix_file(&id);
         let mut busy_clone = busy;
         let mut flash_clone = flash;
         busy_clone.set(true);
         spawn(async move {
-            match drive::drive_upload("sre_matrix_data.json", &json, &token).await {
+            match drive::drive_upload(&fname, &json, &token).await {
                 Ok(_) => flash_clone.set(Some(i18n::tr("flash_drive_up", l))),
                 Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
             }
@@ -121,16 +149,18 @@ pub fn Matrix() -> Element {
             flash.set(Some(i18n::tr("error", l)));
             return;
         }
+        let id = current.read().current.clone();
+        let fname = drive::matrix_file(&id);
         let mut busy_clone = busy;
         let mut state_clone = state;
         let mut flash_clone = flash;
         busy_clone.set(true);
         spawn(async move {
-            match drive::drive_download("sre_matrix_data.json", &token).await {
+            match drive::drive_download(&fname, &token).await {
                 Ok(text) => match drive::restore_matrix_backup(&text) {
                     Ok(s) => {
-                        state_clone.set(s);
-                        storage::save_matrix(&state_clone.read());
+                        state_clone.set(s.clone());
+                        storage::save_matrix(&id, &s);
                         flash_clone.set(Some(i18n::tr("flash_drive_down", l)));
                     }
                     Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
@@ -162,7 +192,7 @@ pub fn Matrix() -> Element {
                         input {
                             class: "company-input", r#type: "text",
                             placeholder: t_company_ph,
-                            value: state.read().company_name.clone(),
+                            value: org_name.clone(),
                             oninput: set_company,
                         }
                     }

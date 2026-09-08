@@ -6,8 +6,26 @@
 use crate::models::{MatrixState, RoadmapState};
 use serde::{Deserialize, Serialize};
 
-pub const MATRIX_FILE: &str = "sre_matrix_data.json";
-pub const ROADMAP_FILE: &str = "sre_roadmap_data.json";
+const MATRIX_FILE: &str = "sre_matrix_data.json";
+const ROADMAP_FILE: &str = "sre_roadmap_data.json";
+
+/// Per-org Drive file names. The default org ("") keeps the legacy names so
+/// existing Drive backups keep working unchanged.
+pub fn matrix_file(org_id: &str) -> String {
+    if org_id.is_empty() {
+        MATRIX_FILE.to_string()
+    } else {
+        format!("{MATRIX_FILE}__{org_id}")
+    }
+}
+
+pub fn roadmap_file(org_id: &str) -> String {
+    if org_id.is_empty() {
+        ROADMAP_FILE.to_string()
+    } else {
+        format!("{ROADMAP_FILE}__{org_id}")
+    }
+}
 
 #[cfg(target_arch = "wasm32")]
 const DRIVE_API: &str = "https://www.googleapis.com/drive/v3/files";
@@ -77,11 +95,7 @@ async fn check(resp: reqwest::Response) -> Result<reqwest::Response, String> {
 // Creates the file in appDataFolder on first run; patches it afterwards.
 
 #[cfg(target_arch = "wasm32")]
-pub async fn drive_upload(
-    file_name: &'static str,
-    json: &str,
-    token: &str,
-) -> Result<String, String> {
+pub async fn drive_upload(file_name: &str, json: &str, token: &str) -> Result<String, String> {
     let client = reqwest::Client::new();
     let q = format!("name='{file_name}' and 'appDataFolder' in parents and trashed=false");
 
@@ -149,18 +163,14 @@ pub async fn drive_upload(
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn drive_upload(
-    _file_name: &'static str,
-    _json: &str,
-    _token: &str,
-) -> Result<String, String> {
+pub async fn drive_upload(_file_name: &str, _json: &str, _token: &str) -> Result<String, String> {
     Err("Drive upload is only available on web".to_string())
 }
 
 // ── Drive: download ──────────────────────────────────────────────────────────
 
 #[cfg(target_arch = "wasm32")]
-pub async fn drive_download(file_name: &'static str, token: &str) -> Result<String, String> {
+pub async fn drive_download(file_name: &str, token: &str) -> Result<String, String> {
     let client = reqwest::Client::new();
     let q = format!("name='{file_name}' and 'appDataFolder' in parents and trashed=false");
 
@@ -200,7 +210,7 @@ pub async fn drive_download(file_name: &'static str, token: &str) -> Result<Stri
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn drive_download(_file_name: &'static str, _token: &str) -> Result<String, String> {
+pub async fn drive_download(_file_name: &str, _token: &str) -> Result<String, String> {
     Err("Drive download is only available on web".to_string())
 }
 

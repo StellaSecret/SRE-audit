@@ -4,6 +4,7 @@ use dioxus_router::Routable;
 use crate::i18n;
 use crate::theme;
 use crate::views::{home::Home, matrix::Matrix, roadmap::Roadmap};
+use sre_audit::orgs::OrgStore;
 use sre_audit::services::auth;
 
 #[derive(Clone, PartialEq, Routable, Debug)]
@@ -22,6 +23,13 @@ pub fn NavLayout() -> Element {
     let mut lang: Signal<i18n::Lang> = use_context();
     let auth_sig: Signal<auth::AuthState> = use_context();
     let mut theme_sig: Signal<theme::Theme> = use_context();
+    let mut orgs_sig: Signal<OrgStore> = use_context();
+
+    let switch_org = move |e: Event<FormData>| {
+        let mut o = orgs_sig();
+        o.current = e.value();
+        orgs_sig.set(o);
+    };
 
     let toggle_lang = move |_: MouseEvent| {
         let mut l = lang();
@@ -58,6 +66,17 @@ pub fn NavLayout() -> Element {
                     }
                 }
                 div { class: "nav-right",
+                    select {
+                        class: "nav-org",
+                        onchange: switch_org,
+                        value: orgs_sig().current,
+                        id: "org-select",
+                        {
+                            (orgs_sig.read().orgs.clone()).into_iter().map(|o| rsx! {
+                                option { value: "{o.id}", label: "{o.name}", "{o.name}" }
+                            })
+                        }
+                    }
                     if let Some(e) = email {
                         span { class: "nav-email", "{e}" }
                     }

@@ -113,6 +113,23 @@ body {
     font-size: 12px;
 }
 
+.nav-org {
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+    border: 1px solid rgb(255 255 255 / 0.2);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.nav-org option {
+    color: #0f172a;
+    background: #fff;
+}
+
 .nav-signout {
     background: transparent;
     color: #fca5a5;
@@ -193,6 +210,122 @@ body {
 
 .welcome strong {
     color: var(--primary);
+}
+
+/* ── Organisations (home) ─────────────────────────────── */
+.orgs-section {
+    margin-top: 8px;
+}
+
+.orgs-section h2 {
+    color: var(--primary);
+    font-size: 18px;
+    margin-bottom: 14px;
+}
+
+.org-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.org-card {
+    gap: 12px;
+}
+
+.org-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.org-card-head b {
+    color: var(--primary);
+    font-size: 17px;
+}
+
+.org-current-badge {
+    background: var(--secondary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 10px;
+}
+
+.org-card-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.org-name-label {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.org-name-input {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    background: #fff;
+    width: 100%;
+}
+
+.org-name-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+}
+
+.org-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.org-card-actions .btn {
+    padding: 7px 14px;
+}
+
+.btn-danger {
+    background: rgb(239 68 68 / 0.08);
+    color: #dc2626;
+    border: 1px solid rgb(239 68 68 / 0.3);
+}
+
+.btn-danger:hover {
+    background: rgb(239 68 68 / 0.15);
+}
+
+.org-add {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.org-add-input {
+    flex: 1;
+    max-width: 360px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    background: #fff;
+}
+
+.org-add-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
 }
 
 /* ── Buttons ──────────────────────────────────────────── */
@@ -446,5 +579,26 @@ body {
 
     body[data-theme="dark"] .matrix-container td.selected {
         box-shadow: inset 0 0 0 2px #0f172a;
+    }
+
+    body[data-theme="dark"] .orgs-section h2,
+    body[data-theme="dark"] .org-card-head b {
+        color: #e2e8f0;
+    }
+
+    body[data-theme="dark"] .org-name-label {
+        color: #94a3b8;
+    }
+
+    body[data-theme="dark"] .org-name-input,
+    body[data-theme="dark"] .org-add-input {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    body[data-theme="dark"] .org-name-input:focus,
+    body[data-theme="dark"] .org-add-input:focus {
+        border-color: #3b82f6;
     }
 }

@@ -7,7 +7,9 @@ mod views;
 
 use dioxus::prelude::*;
 use router::Route;
+use sre_audit::orgs::{self, OrgStore};
 use sre_audit::services::auth;
+use sre_audit::services::storage;
 
 fn main() {
     #[cfg(target_arch = "wasm32")]
@@ -53,6 +55,21 @@ fn App() -> Element {
 
     let theme = use_signal(theme::Theme::detect);
     use_context_provider(|| theme);
+
+    // Audited organizations. On first run (no stored store) seed a default org
+    // (id == "") whose name comes from the legacy matrix company field — this
+    // org maps to the pre-multi-org storage keys / Drive files.
+    let orgs = use_signal(|| match orgs::load() {
+        Some(store) if !store.orgs.is_empty() => store,
+        _ => orgs::apply_defaults(
+            OrgStore::default(),
+            &storage::load_matrix("").unwrap_or_default(),
+        ),
+    });
+    use_context_provider(|| orgs);
+    use_effect(move || {
+        orgs::save(&orgs());
+    });
 
     // Reactive mirror of the static auth state. The lib notifies this signal on
     // every auth transition (sign-in, verify, deny, sign-out).

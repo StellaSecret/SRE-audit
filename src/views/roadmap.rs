@@ -2,6 +2,7 @@ use crate::i18n;
 use dioxus::prelude::*;
 use sre_audit::data;
 use sre_audit::models::RoadmapState;
+use sre_audit::orgs::OrgStore;
 use sre_audit::services::{drive, storage};
 
 /// Row ids of the legacy roadmap cache — ST and LT tables have a fixed order
@@ -52,7 +53,17 @@ pub fn Roadmap() -> Element {
     let l = *lang.read();
 
     let data = data::roadmap();
-    let state = use_signal(|| storage::load_roadmap().unwrap_or_default());
+    let current = use_context::<Signal<OrgStore>>();
+    let org_id = current.read().current.clone();
+    let current_id = use_memo(move || current.read().current.clone());
+    let mut state = use_signal({
+        let org_id = org_id.clone();
+        move || storage::load_roadmap(&org_id).unwrap_or_default()
+    });
+    use_effect(move || {
+        let id = current_id();
+        state.set(storage::load_roadmap(&id).unwrap_or_default());
+    });
     let mut flash = use_signal(|| Option::<String>::None);
     let mut busy = use_signal(|| false);
 
@@ -69,16 +80,20 @@ pub fn Roadmap() -> Element {
     let t_lt_title = i18n::tr("roadmap_lt_title", l);
 
     let do_save = move |_: MouseEvent| {
-        {
-            let s = state.read().clone();
-            storage::save_roadmap(&s);
-        }
+        let id = current.read().current.clone();
+        let s = state.read().clone();
+        storage::save_roadmap(&id, &s);
         flash.set(Some(i18n::tr("flash_saved", l)));
     };
 
     let do_export_json = move |_: MouseEvent| {
         let s = state.read().clone();
-        drive::local_download("sre_roadmap.json", &drive::build_roadmap_backup(&s));
+        let fname = if org_id.is_empty() {
+            "sre_roadmap.json".to_string()
+        } else {
+            format!("sre_roadmap_{org_id}.json")
+        };
+        drive::local_download(&fname, &drive::build_roadmap_backup(&s));
     };
 
     let do_import_json = move |e: Event<FormData>| {
@@ -99,8 +114,9 @@ pub fn Roadmap() -> Element {
                 };
                 match drive::restore_roadmap_backup(&text) {
                     Ok(s) => {
-                        state_clone.set(s);
-                        storage::save_roadmap(&state_clone.read());
+                        state_clone.set(s.clone());
+                        let id = current.read().current.clone();
+                        storage::save_roadmap(&id, &s);
                         flash_clone.set(Some(i18n::tr("flash_import_ok", l)));
                     }
                     Err(_) => {
@@ -121,11 +137,13 @@ pub fn Roadmap() -> Element {
         }
         let s = state.read().clone();
         let json = drive::build_roadmap_backup(&s);
+        let id = current.read().current.clone();
+        let fname = drive::roadmap_file(&id);
         let mut busy_clone = busy;
         let mut flash_clone = flash;
         busy_clone.set(true);
         spawn(async move {
-            match drive::drive_upload("sre_roadmap_data.json", &json, &token).await {
+            match drive::drive_upload(&fname, &json, &token).await {
                 Ok(_) => flash_clone.set(Some(i18n::tr("flash_drive_up", l))),
                 Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
             }
@@ -139,16 +157,18 @@ pub fn Roadmap() -> Element {
             flash.set(Some(i18n::tr("error", l)));
             return;
         }
+        let id = current.read().current.clone();
+        let fname = drive::roadmap_file(&id);
         let mut busy_clone = busy;
         let mut state_clone = state;
         let mut flash_clone = flash;
         busy_clone.set(true);
         spawn(async move {
-            match drive::drive_download("sre_roadmap_data.json", &token).await {
+            match drive::drive_download(&fname, &token).await {
                 Ok(text) => match drive::restore_roadmap_backup(&text) {
                     Ok(s) => {
-                        state_clone.set(s);
-                        storage::save_roadmap(&state_clone.read());
+                        state_clone.set(s.clone());
+                        storage::save_roadmap(&id, &s);
                         flash_clone.set(Some(i18n::tr("flash_drive_down", l)));
                     }
                     Err(e) => flash_clone.set(Some(format!("{}: {e}", i18n::tr("error", l)))),
