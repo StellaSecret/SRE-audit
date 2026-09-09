@@ -160,6 +160,9 @@ fn en(key: &str) -> &str {
         "roadmap_lt_h2" => "Consolidation Target (Year 1)",
         "roadmap_lt_h3" => "Major Transformation (Years 2 & 3)",
         "roadmap_lt_h4" => "Target Vision (Continuous SRE Level)",
+        "roadmap_generate" => "Generate from matrix",
+        "roadmap_gen_ok" => "Roadmap filled from the matrix (empty cells only).",
+        "roadmap_gen_noselection" => "Select maturity levels in the matrix first.",
 
         "drive_hint" => "Your data is stored locally in this browser. Use “Backup to Drive” to save to your own private Google Drive app folder.",
 
@@ -249,6 +252,9 @@ fn fr(key: &str) -> &str {
         "roadmap_lt_h2" => "Cible de Consolidation (Année 1)",
         "roadmap_lt_h3" => "Transformation Majeure (Années 2 & 3)",
         "roadmap_lt_h4" => "Vision Target (Niveau SRE Continu)",
+        "roadmap_generate" => "Générer depuis la matrice",
+        "roadmap_gen_ok" => "Feuille de route remplie depuis la matrice (cellules vides uniquement).",
+        "roadmap_gen_noselection" => "Sélectionnez d'abord des niveaux de maturité dans la matrice.",
 
         "drive_hint" => "Vos données sont stockées localement dans ce navigateur. Utilisez \"Sauvegarder sur Drive\" pour les enregistrer dans votre dossier Google Drive privé de l'application.",
 

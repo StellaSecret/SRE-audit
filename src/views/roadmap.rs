@@ -53,6 +53,7 @@ pub fn Roadmap() -> Element {
     let l = *lang.read();
 
     let data = data::roadmap();
+    let base_matrix = data::matrix();
     let current = use_context::<Signal<OrgStore>>();
     let org_id = current.read().current.clone();
     let current_id = use_memo(move || current.read().current.clone());
@@ -60,6 +61,7 @@ pub fn Roadmap() -> Element {
         let org_id = org_id.clone();
         move || storage::load_roadmap(&org_id).unwrap_or_default()
     });
+    let matrix_sel = use_memo(move || storage::load_matrix(&current_id()).unwrap_or_default());
     use_effect(move || {
         let id = current_id();
         state.set(storage::load_roadmap(&id).unwrap_or_default());
@@ -94,6 +96,35 @@ pub fn Roadmap() -> Element {
     let t_import_json = i18n::tr("import_json", l);
     let t_st_title = i18n::tr("roadmap_st_title", l);
     let t_lt_title = i18n::tr("roadmap_lt_title", l);
+    let t_generate = i18n::tr("roadmap_generate", l);
+
+    let st_badges: Vec<(u8, String)> = data
+        .st
+        .iter()
+        .map(|row| {
+            let b = matrix_sel()
+                .selected_level(row.num)
+                .and_then(|lv| {
+                    sre_audit::services::roadmap_gen::level_badge(&base_matrix, row.num, lv)
+                })
+                .or_else(|| row.badges.first().cloned())
+                .unwrap_or_default();
+            (row.num, b)
+        })
+        .collect();
+    let lt_visions: Vec<(u8, String)> = data
+        .lt
+        .iter()
+        .map(|row| {
+            let v = if row.vision.is_empty() {
+                sre_audit::services::roadmap_gen::vision_badge(&base_matrix, row.num)
+                    .unwrap_or_default()
+            } else {
+                row.vision.clone()
+            };
+            (row.num, v)
+        })
+        .collect();
 
     let do_save = move |_: MouseEvent| {
         let id = current.read().current.clone();
@@ -156,6 +187,27 @@ pub fn Roadmap() -> Element {
         }
     };
 
+    let do_generate = {
+        let roadmap_data = data.clone();
+        let matrix_data = base_matrix.clone();
+        move |_: MouseEvent| {
+            let id = current.read().current.clone();
+            let Some(sel) = storage::load_matrix(&id) else {
+                flash.set(Some(i18n::tr("roadmap_gen_noselection", l)));
+                return;
+            };
+            if sel.selections.is_empty() {
+                flash.set(Some(i18n::tr("roadmap_gen_noselection", l)));
+                return;
+            }
+            let mut s = state.read().clone();
+            sre_audit::services::roadmap_gen::fill_draft(&mut s, &roadmap_data, &matrix_data, &sel);
+            state.set(s.clone());
+            storage::save_roadmap(&id, &s);
+            flash.set(Some(i18n::tr("roadmap_gen_ok", l)));
+        }
+    };
+
     rsx! {
         div { class: "container",
             div { class: "header",
@@ -178,6 +230,9 @@ pub fn Roadmap() -> Element {
             div { class: "toolbar",
                 button { class: "btn btn-export", onclick: do_export_json, disabled: busy(),
                     "{t_export_json}"
+                }
+                button { class: "btn btn-export", onclick: do_generate, disabled: busy(),
+                    "{t_generate}"
                 }
                 input { id: "roadmap-import-input", r#type: "file", accept: ".json",
                     style: "display:none", onchange: do_import_json }
@@ -207,8 +262,10 @@ pub fn Roadmap() -> Element {
                             for (idx, _area) in row.areas.iter().enumerate() {
                                 td {
                                     if idx == 0 {
-                                        if let Some(b) = row.badges.first() {
-                                            div { class: "horizon-badge badge-st", "{b}" }
+                                        if let Some(b) = st_badges.iter().find(|(n, _)| *n == row.num).map(|(_, b)| b.as_str()) {
+                                            if !b.is_empty() {
+                                                div { class: "horizon-badge badge-st", "{b}" }
+                                            }
                                         }
                                     }
                                     textarea {
@@ -260,9 +317,11 @@ pub fn Roadmap() -> Element {
                                 }
                             }
                             td {
-                                if !row.vision.is_empty() {
-                                    div { class: "horizon-badge badge-lt vision",
-                                        "{row.vision}"
+                                if let Some(v) = lt_visions.iter().find(|(n, _)| *n == row.num).map(|(_, v)| v.as_str()) {
+                                    if !v.is_empty() {
+                                        div { class: "horizon-badge badge-lt vision",
+                                            "{v}"
+                                        }
                                     }
                                 }
                             }
