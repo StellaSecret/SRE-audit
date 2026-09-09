@@ -203,7 +203,7 @@
             th { background-color: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .editable-area { display: none !important; }
-            .print-text { block !important; }
+            .print-text { display: block !important; }
         }
 
         /* --- MODE SOMBRE --- */

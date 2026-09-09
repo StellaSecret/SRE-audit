@@ -64,6 +64,25 @@ pub fn Roadmap() -> Element {
         let id = current_id();
         state.set(storage::load_roadmap(&id).unwrap_or_default());
     });
+    // Keep the hidden print mirrors in sync with loaded state (they are only
+    // set via set_field on input; values restored from storage or another
+    // org would otherwise never make it into the PDF).
+    let mirror_keys_raw: Vec<(String, String, usize)> = data
+        .st
+        .iter()
+        .chain(data.lt.iter())
+        .flat_map(|row| {
+            let k = row.id.clone();
+            (0..row.areas.len()).map(move |idx| (format!("sre_road_{k}_{idx}"), k.clone(), idx))
+        })
+        .collect();
+    let mirror_keys = use_memo(move || mirror_keys_raw.clone());
+    use_effect(move || {
+        let s = state.read();
+        for (mirror_id, key, idx) in mirror_keys() {
+            sre_audit::services::print::mirror(&mirror_id, s.field(&key, idx));
+        }
+    });
     let mut flash = use_signal(|| Option::<String>::None);
     let mut busy = use_signal(|| false);
 
