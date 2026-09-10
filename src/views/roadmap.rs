@@ -1,6 +1,6 @@
-use crate::i18n;
 use dioxus::prelude::*;
 use sre_audit::data;
+use sre_audit::i18n;
 use sre_audit::models::RoadmapState;
 use sre_audit::orgs::OrgStore;
 use sre_audit::services::{drive, storage};
@@ -54,6 +54,7 @@ pub fn Roadmap() -> Element {
 
     let data = data::roadmap();
     let base_matrix = data::matrix();
+    let base_templates = data::roadmap_templates();
     let current = use_context::<Signal<OrgStore>>();
     let org_id = current.read().current.clone();
     let current_id = use_memo(move || current.read().current.clone());
@@ -190,6 +191,7 @@ pub fn Roadmap() -> Element {
     let do_generate = {
         let roadmap_data = data.clone();
         let matrix_data = base_matrix.clone();
+        let templates = base_templates.clone();
         move |_: MouseEvent| {
             let id = current.read().current.clone();
             let Some(sel) = storage::load_matrix(&id) else {
@@ -201,7 +203,14 @@ pub fn Roadmap() -> Element {
                 return;
             }
             let mut s = state.read().clone();
-            sre_audit::services::roadmap_gen::fill_draft(&mut s, &roadmap_data, &matrix_data, &sel);
+            sre_audit::services::roadmap_gen::fill_draft(
+                &mut s,
+                &roadmap_data,
+                &matrix_data,
+                &sel,
+                &templates,
+                l,
+            );
             state.set(s.clone());
             storage::save_roadmap(&id, &s);
             flash.set(Some(i18n::tr("roadmap_gen_ok", l)));

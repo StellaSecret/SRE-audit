@@ -114,3 +114,33 @@ impl RoadmapState {
         ""
     }
 }
+
+// ── Roadmap generation templates ─────────────────────────────────────────────
+// Bilingual (FR/EN) cell templates used to draft roadmap content from the
+// matrix selection. Embedded from `src/data/roadmap_gen.json`.
+
+/// A single bilingual string.
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct LangStrings {
+    pub fr: String,
+    pub en: String,
+}
+
+/// A bilingual list of lines (e.g. the "M1/M2/M3" actions).
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct LangLines {
+    pub fr: Vec<String>,
+    pub en: Vec<String>,
+}
+
+/// Full template bank, indexed per principle (`"1".."7"`) and per level
+/// (`"1".."4"`): audit finding, short-term actions and KPIs, long-term year-1
+/// target and major transformation.
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct RoadmapTemplates {
+    pub constat: BTreeMap<String, BTreeMap<String, LangStrings>>,
+    pub st_actions: BTreeMap<String, BTreeMap<String, LangLines>>,
+    pub st_kpi: BTreeMap<String, BTreeMap<String, LangLines>>,
+    pub lt_year1: BTreeMap<String, BTreeMap<String, LangStrings>>,
+    pub lt_transform: BTreeMap<String, BTreeMap<String, LangStrings>>,
+}

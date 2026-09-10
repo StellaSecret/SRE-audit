@@ -1,5 +1,5 @@
-use crate::i18n;
 use dioxus::prelude::*;
+use sre_audit::i18n;
 use sre_audit::orgs::OrgStore;
 use sre_audit::services::{drive, storage};
 

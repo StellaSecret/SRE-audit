@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
 use dioxus_router::Routable;
 
-use crate::i18n;
 use crate::theme;
 use crate::views::{backup::Backup, home::Home, matrix::Matrix, roadmap::Roadmap};
+use sre_audit::i18n;
 use sre_audit::orgs::OrgStore;
 use sre_audit::services::auth;
 

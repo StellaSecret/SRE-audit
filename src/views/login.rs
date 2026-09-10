@@ -1,6 +1,6 @@
-use crate::i18n;
 use dioxus::prelude::*;
 use sre_audit::config::E2E_MODE;
+use sre_audit::i18n;
 use sre_audit::services::auth;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");

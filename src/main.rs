@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 
-mod i18n;
 mod router;
 mod theme;
 mod views;
 
 use dioxus::prelude::*;
 use router::Route;
+use sre_audit::i18n;
 use sre_audit::orgs::{self, OrgStore};
 use sre_audit::services::auth;
 use sre_audit::services::storage;

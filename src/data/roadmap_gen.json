@@ -1,0 +1,474 @@
+{
+  "constat": {
+    "1": {
+      "1": {
+        "fr": "Aucune traçabilité des incidents : alertes Up/Down basiques, pannes découvertes via les plaintes utilisateurs. Visibilité nulle sur la performance et la sécurité.",
+        "en": "No incident traceability: basic Up/Down alerts, outages discovered via user complaints. Zero visibility on performance or security."
+      },
+      "2": {
+        "fr": "APM en place mais alertes denses et bruyantes traitées séquentiellement ; logs centralisés sans détection comportementale active. Superposition d'outils de supervision ({tools}).",
+        "en": "APM in place but dense, noisy alerts processed manually; logs centralized without active behavioral detection. Overlapping monitoring tools ({tools})."
+      },
+      "3": {
+        "fr": "Alertes nettoyées et routées automatiquement, mais observabilité encore sectorisée (pas de corrélation unifiée traces/logs/métriques).",
+        "en": "Clean automatically routed alerts, but observability remains siloed — no unified trace/log/metric correlation."
+      },
+      "4": {
+        "fr": "Écosystème d'observabilité unifié et qualitatif ; enjeu : maintenir le standard et consolider la détection prédictive.",
+        "en": "Unified, high-quality observability; focus: sustaining the standard and hardening predictive detection."
+      }
+    },
+    "2": {
+      "1": {
+        "fr": "Pas de métriques communes de succès : chaque équipe pilote sa vérité, dimensionnements d'infrastructure faits au hasard.",
+        "en": "No shared success metrics: each team keeps its own truth, infrastructure sizing is guesswork."
+      },
+      "2": {
+        "fr": "SLA existants mais purement juridiques, déconnectés de l'expérience réellement vécue par l'utilisateur ; coût non relié à l'usage réel.",
+        "en": "Existing SLAs are purely contractual, disconnected from real user experience; cost not tied to actual usage."
+      },
+      "3": {
+        "fr": "Indicateurs pilotés par les parcours clients réels ; à consolider : la fiabilité comme objectif d'entreprise partagé.",
+        "en": "Indicators driven by real customer journeys; next: reliability as a shared enterprise objective."
+      },
+      "4": {
+        "fr": "Gouvernance par la valeur opérationnelle ; enjeu : pérenniser l'arbitrage automatique et la culture produit unifiée.",
+        "en": "Value-driven governance in place; focus: sustaining automatic arbitrage and the unified product culture."
+      }
+    },
+    "3": {
+      "1": {
+        "fr": "Culture du blâme, post-mortems inexistants ; tests de résistance réalisés par accident en production.",
+        "en": "Blame culture, no post-mortems; resilience testing happens by accident in production."
+      },
+      "2": {
+        "fr": "Post-mortems existants mais limités aux actions de contournement à chaud ; pas d'analyse des causes racines.",
+        "en": "Post-mortems exist but stop at hot fixes; no root-cause analysis."
+      },
+      "3": {
+        "fr": "Blameless Post-mortem en place et injections de pannes contrôlées en préproduction ; à étendre aux dépendances critiques et aux tiers.",
+        "en": "Blameless post-mortems in place and controlled fail injections in pre-production; extend to critical dependencies and third parties."
+      },
+      "4": {
+        "fr": "Gouvernance active et culture d'apprentissage institutionnalisée ; enjeu : maintenir la dynamique sur la durée.",
+        "en": "Active governance and an institutionalized learning culture; focus: sustaining momentum long-term."
+      }
+    },
+    "4": {
+      "1": {
+        "fr": "Asphyxie par tâches manuelles répétitives non chiffrées ; dépendance au héroïsme individuel ; astreintes subies exclusivement par les Ops.",
+        "en": "Suffocated by unmeasured repetitive manual tasks; reliance on individual heroics; on-call burden on Ops only."
+      },
+      "2": {
+        "fr": "Toil suivi quantitativement mais encore très présent (checks du matin, passe-plat, patchs, requêtes SQL) ; base de connaissances mal référencée.",
+        "en": "Toil measured but still heavy (morning checks, hand-offs, patches, SQL queries); knowledge base poorly indexed."
+      },
+      "3": {
+        "fr": "Automatisation industrialisée des tâches chronophages et transfert vers le N1 ; à étendre aux workflows de patchs et requêtes SQL.",
+        "en": "Industrialized automation of heavy tasks with N1 hand-off underway; extend to patch and SQL-query workflows."
+      },
+      "4": {
+        "fr": "Temps sanctuarisé et astreintes partagées ; enjeu : maintenir le plafond de Toil et l'auto-remédiation.",
+        "en": "Sanctified time and shared on-call; focus: sustaining the Toil cap and self-healing."
+      }
+    },
+    "5": {
+      "1": {
+        "fr": "Traitement par tickets manuels de chaque demande élémentaire ; serveurs modifiés à la main en production (drift complet).",
+        "en": "Every request handled by manual tickets; servers hand-modified in production (full drift)."
+      },
+      "2": {
+        "fr": "Scripts d'automatisation écrits par les Ops mais déclenchés manuellement depuis des postes isolés ; dépendance aux experts isolés.",
+        "en": "Ops-written automation scripts run manually from isolated workstations; reliance on isolated experts."
+      },
+      "3": {
+        "fr": "Automatisation industrialisée (catalogue outillé, IaC centralisée) ; à consolider : l'autonomie instantanée et l'élimination des tickets.",
+        "en": "Industrialized automation (tooled catalogue, centralized IaC); next: instant autonomy and ticket elimination."
+      },
+      "4": {
+        "fr": "Écosystème continu mature ; enjeu : mesurer l'efficience et la couverture déclarative réelle.",
+        "en": "Mature continuous ecosystem; focus: measuring efficiency and real declarative coverage."
+      }
+    },
+    "6": {
+      "1": {
+        "fr": "Déploiements manuels nocturnes anxiogènes validés par fichiers Excel ; tests de bout en bout inexistants.",
+        "en": "Stressful manual night-time deploys validated via Excel; no automated end-to-end tests."
+      },
+      "2": {
+        "fr": "CAB hebdomadaire manuel ; pipelines basiques avec tests isolés ; validations de sécurité non bloquantes.",
+        "en": "Weekly manual CAB; basic pipelines with isolated tests; non-blocking security checks."
+      },
+      "3": {
+        "fr": "Validation continue en place (GitOps/Kubernetes, E2E, DevSecOps bloquants) ; vérifications post-MEP encore partiellement manuelles.",
+        "en": "Continuous validation in place (GitOps/Kubernetes, E2E, blocking DevSecOps); post-deploy checks still partly manual."
+      },
+      "4": {
+        "fr": "Livraison entièrement pilotée par le code ; enjeu : généraliser les canary et la conformité automatique.",
+        "en": "Fully code-driven delivery; focus: generalizing canaries and automatic compliance."
+      }
+    },
+    "7": {
+      "1": {
+        "fr": "CMDB obsolète (maintenance manuelle) ; prolifération d'outils doublons ({tools}) ; PRA théorique.",
+        "en": "Stale CMDB (manual upkeep); redundant tool proliferation ({tools}); theoretical DR plan."
+      },
+      "2": {
+        "fr": "Inventaires semi-automatiques et début de cartographie, mais exceptions locales persistantes ({tools}) ; failover encore manuel.",
+        "en": "Semi-automatic inventories and partial tool mapping, but local exceptions persist ({tools}); failover still manual."
+      },
+      "3": {
+        "fr": "Standard consolidé et dépôt de code comme source de vérité ; à automatiser : les bascules et l'audit de configuration.",
+        "en": "Consolidated standard, code repo as truth; next: automated failovers and config audits."
+      },
+      "4": {
+        "fr": "Architecture native et sobre ; enjeu : maintenir l'audit continu et étendre le partage via le portail interne.",
+        "en": "Native, sober architecture; focus: sustaining continuous audits and extending IDP sharing."
+      }
+    }
+  },
+  "st_actions": {
+    "1": {
+      "1": {
+        "fr": ["- M1 : Mettre en place une collecte centralisée des logs et métriques avec un agent unique bien défini.", "- M2 : Définir le périmètre applicatif prioritaire couvert par la supervision.", "- M3 : Corriger ou geler les alertes les plus bruyantes ou non actionnables."],
+        "en": ["- M1: Deploy centralized log and metric collection with a single, clearly defined agent.", "- M2: Define the priority application scope covered by monitoring.", "- M3: Fix or mute the noisiest, non-actionable alerts."]
+      },
+      "2": {
+        "fr": ["- M1 : Supprimer/geler les notifications à titre purement informationnel.", "- M2 : Définir une matrice de routage stricte des alertes par périmètre applicatif.", "- M3 : Configurer accusé de réception et circuit d'escalade sur les alertes critiques."],
+        "en": ["- M1: Remove/freeze purely informational notifications.", "- M2: Define a strict alert-routing matrix per application scope.", "- M3: Add acknowledgement and escalation paths on critical alerts."]
+      },
+      "3": {
+        "fr": ["- M1 : Mesurer la complétude de la couverture (traces, logs, métriques) par service.", "- M2 : Corréler les traces applicatives aux métriques d'infrastructure sur les parcours critiques.", "- M3 : Ouvrir l'observabilité aux équipes produit en accès self-service."],
+        "en": ["- M1: Measure per-service end-to-end coverage (traces, logs, metrics).", "- M2: Correlate application traces with infrastructure metrics on critical paths.", "- M3: Give product teams self-service observability access."]
+      },
+      "4": {
+        "fr": ["- M1 : Auditer la couverture et la qualité des données de télémétrie.", "- M2 : Consolider les modèles de détection prédictive et réduire les faux positifs.", "- M3 : Documenter et partager le standard d'observabilité au niveau du collectif."],
+        "en": ["- M1: Audit telemetry coverage and data quality.", "- M2: Harden predictive detection models and cut false positives.", "- M3: Document and share the observability standard org-wide."]
+      }
+    },
+    "2": {
+      "1": {
+        "fr": ["- M1 : Inventorier les SLA/SLO existants et les engagements contractuels.", "- M2 : Sélectionner 3 parcours utilisateurs majeurs à instrumenter.", "- M3 : Formaliser des SLO mesurables calqués sur ces parcours."],
+        "en": ["- M1: Inventory existing SLAs/SLOs and contractual commitments.", "- M2: Pick 3 critical user journeys to instrument.", "- M3: Formalize measurable SLOs aligned to those journeys."]
+      },
+      "2": {
+        "fr": ["- M1-M2 : Co-concevoir avec le métier les indicateurs sur 3 parcours utilisateurs majeurs.", "- M2-M3 : Instrumenter automatiquement ces indicateurs (sans saisie manuelle).", "- M3 : Lier le coût par service aux SLO ciblés (FinOps)."],
+        "en": ["- M1-M2: Co-design indicators on 3 major journeys with the business.", "- M2-M3: Instrument those indicators automatically (no manual entry).", "- M3: Tie per-service cost to target SLOs (FinOps)."]
+      },
+      "3": {
+        "fr": ["- M1 : Étendre les SLO à tous les parcours critiques et services transverses.", "- M2 : Automatiser le calcul de l'Error Budget et de son burn rate.", "- M3 : Présenter l'état SLO mensuellement à la direction (juge de paix)."],
+        "en": ["- M1: Extend SLOs to all critical journeys and shared services.", "- M2: Automate Error-Budget and burn-rate computation.", "- M3: Report SLO health monthly to leadership as the arbiter."]
+      },
+      "4": {
+        "fr": ["- M1 : Auditer l'écart entre SLO contractualisés et SLO réellement mesurés.", "- M2 : Renforcer l'alignement tripartite (Dev/Ops/Métier) autour des SLO.", "- M3 : Partager les bonnes pratiques de définition de SLO dans le collectif."],
+        "en": ["- M1: Audit gaps between contractual and measured SLOs.", "- M2: Strengthen tri-party (Dev/Ops/Business) alignment around SLOs.", "- M3: Share SLO-definition best practices org-wide."]
+      }
+    },
+    "3": {
+      "1": {
+        "fr": ["- M1 : Instaurer un template de post-mortem sans blâme pour tout incident P1.", "- M2 : Créer la revue hebdomadaire des incidents et suivre les actions correctives.", "- M3 : Documenter les runbooks des incidents récurrents."],
+        "en": ["- M1: Introduce a blameless post-mortem template for every P1.", "- M2: Run weekly incident reviews and track corrective actions.", "- M3: Document runbooks for the most recurrent incidents."]
+      },
+      "2": {
+        "fr": ["- M1 : Refondre le template de post-mortem (analyse systémique : technique, organisationnelle, éditeurs/tiers).", "- M2 : Financer les actions correctives pérennes via l'Error Budget.", "- M3 : Diffuser les RCA des pannes complexes dans les sessions de partage existantes."],
+        "en": ["- M1: Redesign the post-mortem template (systemic: technical, organizational, vendors).", "- M2: Fund long-term corrective actions via the Error Budget.", "- M3: Share RCAs of complex outages in existing sharing sessions."]
+      },
+      "3": {
+        "fr": ["- M1 : Élargir les exercices de pannes aux dépendances critiques et aux tiers.", "- M2 : Automatiser les scénarios de défaillance répétables.", "- M3 : Définir des objectifs de temps de récupération (RTO) mesurés par exercice."],
+        "en": ["- M1: Extend failure exercises to critical dependencies and third parties.", "- M2: Automate repeatable failure scenarios.", "- M3: Define measured recovery-time objectives (RTO) per exercise."]
+      },
+      "4": {
+        "fr": ["- M1 : Mesurer l'efficacité des sessions collectives de partage de pannes.", "- M2 : Élargir le Chaos Engineering aux flux de données critiques.", "- M3 : Capitaliser les leçons des Game Days dans les runbooks."],
+        "en": ["- M1: Measure the effectiveness of collective post-incident sessions.", "- M2: Expand Chaos Engineering to critical data flows.", "- M3: Fold Game-Day lessons into runbooks."]
+      }
+    },
+    "4": {
+      "1": {
+        "fr": ["- M1 : Mettre en place le registre de calcul du Toil (formule : occurrences x temps passé).", "- M2 : Recenser les 10 tâches les plus chronophages.", "- M3 : Cibler une première tâche à automatiser ou à transférer."],
+        "en": ["- M1: Stand up a Toil register (formula: occurrences x time spent).", "- M2: Inventory the 10 most time-consuming tasks.", "- M3: Pick a first task to automate or hand off."]
+      },
+      "2": {
+        "fr": ["- M1 : Lancer le chantier de re-référencement de la base de connaissances.", "- M2 : Rédiger et transférer 3 procédures récurrentes vers le support N1 en HNO.", "- M3 : Nettoyer les alertes pour ne réveiller que sur impact client."],
+        "en": ["- M1: Kick off a knowledge-base re-indexing project.", "- M2: Write and hand off 3 recurring procedures to N1 in out-of-hours.", "- M3: Tune alerts to wake people only on real customer impact."]
+      },
+      "3": {
+        "fr": ["- M1 : Automatiser les workflows de patchs (Postgres, serveurs) via Ansible/AWX.", "- M2 : Automatiser les requêtes SQL récurrentes.", "- M3 : Impliquer les Devs dans le support et les escalades de niveau 2/3."],
+        "en": ["- M1: Automate patch workflows (Postgres, servers) via Ansible/AWX.", "- M2: Automate recurrent SQL queries.", "- M3: Involve Devs in support and L2/L3 escalations."]
+      },
+      "4": {
+        "fr": ["- M1 : Mesurer le volume de Toil réel vs le plafond cible (50%).", "- M2 : Étendre l'auto-remédiation aux alertes d'infrastructure.", "- M3 : Formaliser l'équilibrage des astreintes Dev/SRE."],
+        "en": ["- M1: Measure actual Toil vs the 50% cap.", "- M2: Extend self-healing to infrastructure alerts.", "- M3: Formalize Dev/SRE on-call balance."]
+      }
+    },
+    "5": {
+      "1": {
+        "fr": ["- M1 : Inventorier toutes les configurations modifiées hors cadre IaC.", "- M2 : Choisir un outil d'orchestration central ou cataloguer les scripts existants.", "- M3 : Bloquer les accès en écriture directe sur les environnements cibles pour les nouveaux flux."],
+        "en": ["- M1: Inventory all configurations modified outside IaC.", "- M2: Pick a central orchestration tool or catalogue existing scripts.", "- M3: Block direct write access to target environments for new flows."]
+      },
+      "2": {
+        "fr": ["- M1 : Migrer le traitement des demandes courantes vers un catalogue outillé (ex : AWX).", "- M2 : Centraliser les scripts dans un dépôt versionné exécuté via des orchestrateurs communs.", "- M3 : Traiter automatiquement les demandes les plus fréquentes sans ticket."],
+        "en": ["- M1: Move routine requests to a tooled catalogue (e.g. AWX).", "- M2: Centralize scripts in a versioned repo run via shared orchestrators.", "- M3: Auto-process the most frequent requests with no ticket."]
+      },
+      "3": {
+        "fr": ["- M1 : Mesurer le taux d'automatisation par type de demande.", "- M2 : Étendre le catalogue aux données et aux accès critiques.", "- M3 : Préparer le portail d'ingénierie interne (IDP) avec les équipes pilotes."],
+        "en": ["- M1: Measure automation rate per request type.", "- M2: Extend the catalogue to data and critical access.", "- M3: Pilot an internal developer portal (IDP) with early teams."]
+      },
+      "4": {
+        "fr": ["- M1 : Auditer le taux de conformité au modèle déclaratif.", "- M2 : Renforcer la réconciliation automatique des écarts.", "- M3 : Étendre l'autonomie IDP à la gestion des coûts et de la sécurité."],
+        "en": ["- M1: Audit compliance with the declarative model.", "- M2: Strengthen automatic drift reconciliation.", "- M3: Extend IDP autonomy to cost and security management."]
+      }
+    },
+    "6": {
+      "1": {
+        "fr": ["- M1 : Automatiser le build et les tests unitaires des pipelines existants.", "- M2 : Mettre en place des environnements de test dédiés et stables.", "- M3 : Sécuriser les accès de livraison avec des comptes de service."],
+        "en": ["- M1: Automate builds and unit tests in existing pipelines.", "- M2: Set up dedicated, stable test environments.", "- M3: Secure delivery access with service accounts."]
+      },
+      "2": {
+        "fr": ["- M1-M2 : Créer des comptes de test applicatifs génériques et sécurisés.", "- M2-M3 : Éliminer les processus sans valeur ajoutée du cycle de validation du CAB.", "- M3 : Rendre bloquants les scans de sécurité sur les pipelines."],
+        "en": ["- M1-M2: Create generic, secure application test accounts.", "- M2-M3: Remove low-value steps from the CAB validation cycle.", "- M3: Make security scans blocking in pipelines."]
+      },
+      "3": {
+        "fr": ["- M1 : Automatiser les vérifications post-déploiement avec des comptes fictifs de bout en bout.", "- M2 : Industrialiser les tests de non-régression dans les pipelines CI/CD uniques.", "- M3 : Préparer les déploiements progressifs (canary) sur les services pilotes."],
+        "en": ["- M1: Automate post-deploy checks with end-to-end synthetic accounts.", "- M2: Industrialize regression testing in unified CI/CD pipelines.", "- M3: Prepare progressive (canary) deploys on pilot services."]
+      },
+      "4": {
+        "fr": ["- M1 : Étendre le canary à l'ensemble des services critiques.", "- M2 : Auditer la conformité automatique des métriques de release.", "- M3 : Documenter le modèle de déploiement progressif dans le collectif."],
+        "en": ["- M1: Roll canary out to all critical services.", "- M2: Audit automatic release-metric compliance.", "- M3: Document the progressive deploy model org-wide."]
+      }
+    },
+    "7": {
+      "1": {
+        "fr": ["- M1 : Cartographier les outils existants par besoin métier.", "- M2 : Choisir un référentiel de configuration unique (CMDB ou IaC).", "- M3 : Documenter les premiers standards de choix d'outils."],
+        "en": ["- M1: Map existing tools by business need.", "- M2: Pick a single configuration repository (CMDB or IaC).", "- M3: Document the first tool-selection standards."]
+      },
+      "2": {
+        "fr": ["- M1-M2 : Publier la \"Voie Pavée\" d'outils officiels (ex : GitLab CI sanctuarisé vs Jenkins).", "- M3 : Introduire un processus de gel/justification d'urgence pour tout projet hors standard."],
+        "en": ["- M1-M2: Publish a 'paved road' of official tools (e.g. GitLab CI over Jenkins).", "- M3: Introduce an urgent freeze/justification process for any non-standard project."]
+      },
+      "3": {
+        "fr": ["- M1 : Automatiser les tests de bascule des environnements critiques.", "- M2 : Remplacer la CMDB par l'audit continu des dépôts IaC.", "- M3 : Éliminer les derniers doublons d'outils détectés."],
+        "en": ["- M1: Automate failover tests on critical environments.", "- M2: Replace CMDB with continuous IaC-repo audits.", "- M3: Remove the last detected tool duplicates."]
+      },
+      "4": {
+        "fr": ["- M1 : Auditer le taux de redondance restant par domaine.", "- M2 : Étendre la Voie Pavée à la sécurité et aux données.", "- M3 : Partager la stack de référence via le portail interne."],
+        "en": ["- M1: Audit remaining redundancy per domain.", "- M2: Extend the paved road to security and data.", "- M3: Share the reference stack via the internal portal."]
+      }
+    }
+  },
+  "st_kpi": {
+    "1": {
+      "1": {
+        "fr": ["- Taux de couverture de supervision sur le périmètre prioritaire.", "- Nombre d'incidents découverts par la supervision vs par les utilisateurs."],
+        "en": ["- Monitoring coverage rate on the priority scope.", "- Incidents detected by monitoring vs. by users."]
+      },
+      "2": {
+        "fr": ["- Bruit d'alertes réduit d'au moins 30%.", "- 100% des alertes critiques assignées à un runbook ou à un propriétaire."],
+        "en": ["- Alert noise reduced by at least 30%.", "- 100% of critical alerts assigned to a runbook or owner."]
+      },
+      "3": {
+        "fr": ["- % de services couverts en end-to-end (traces + logs + métriques).", "- Temps moyen de résolution (MTTR) des alertes critiques."],
+        "en": ["- % of services with end-to-end coverage (traces+logs+metrics).", "- Mean time to resolve (MTTR) critical alerts."]
+      },
+      "4": {
+        "fr": ["- Disponibilité de la donnée de télémétrie end-to-end.", "- Taux de faux positifs des modèles de détection prédictive."],
+        "en": ["- End-to-end telemetry data availability.", "- False-positive rate of predictive detection models."]
+      }
+    },
+    "2": {
+      "1": {
+        "fr": ["- 3 SLO mesurables définis et instrumentés.", "- % de temps sans couverture SLO sur les parcours critiques."],
+        "en": ["- 3 measurable SLOs defined and instrumented.", "- % of time without SLO coverage on critical journeys."]
+      },
+      "2": {
+        "fr": ["- 3 conventions de SLO métier validées.", "- % d'indicateurs mesurés sans intervention manuelle."],
+        "en": ["- 3 business SLO charters validated.", "- % of indicators measured with no manual intervention."]
+      },
+      "3": {
+        "fr": ["- Couverture SLO des services critiques.", "- Burn rate cible respecté (ex : 95% de l'Error Budget conservé sur 30 jours)."],
+        "en": ["- SLO coverage on critical services.", "- Target burn rate respected (e.g. 95% of Error Budget kept over 30 days)."]
+      },
+      "4": {
+        "fr": ["- Alignement SLO contractualisés vs SLO mesurés.", "- % de décisions de run pilotées par l'Error Budget."],
+        "en": ["- Contractual vs measured SLO alignment.", "- % of run decisions driven by the Error Budget."]
+      }
+    },
+    "3": {
+      "1": {
+        "fr": ["- 100% des incidents P1 avec post-mortem publié.", "- % d'actions correctives suivies à 30 jours."],
+        "en": ["- 100% of P1 incidents with a published post-mortem.", "- % of corrective actions tracked at 30 days."]
+      },
+      "2": {
+        "fr": ["- % de post-mortems incluant une vraie analyse de causes racines.", "- % de RCA diffusés de façon transverse."],
+        "en": ["- % of post-mortems with real root-cause analysis.", "- % of RCAs shared org-wide."]
+      },
+      "3": {
+        "fr": ["- Couverture des risques testés (matrice risque/exercice).", "- RTO mesuré et conforme pour les scénarios critiques."],
+        "en": ["- Tested-risk coverage (risk/exercise matrix).", "- Measured RTO within target for critical scenarios."]
+      },
+      "4": {
+        "fr": ["- Participation et taux d'adoption des leçons partagées.", "- Nombre d'exercices de chaos automatisés par trimestre."],
+        "en": ["- Participation and adoption rate of shared lessons.", "- Automated chaos exercises per quarter."]
+      }
+    },
+    "4": {
+      "1": {
+        "fr": ["- Registre du Toil initialisé.", "- Volume de Toil hebdomadaire estimé et suivi."],
+        "en": ["- Toil register initialized.", "- Estimated weekly Toil volume tracked."]
+      },
+      "2": {
+        "fr": ["- Top 20 des pages Wiki critiques réindexées.", "- 3 procédures récurrentes déléguées au support N1."],
+        "en": ["- Top 20 critical wiki pages re-indexed.", "- 3 recurring procedures delegated to N1."]
+      },
+      "3": {
+        "fr": ["- % des tâches récurrentes automatisées.", "- Temps de traitement des alertes strictement réduit."],
+        "en": ["- % of recurrent tasks automated.", "- Strictly reduced time to handle alerts."]
+      },
+      "4": {
+        "fr": ["- % de Toil sous le plafond des 50%.", "- % d'alertes auto-résorbées sans intervention."],
+        "en": ["- Toil % under the 50% cap.", "- % of alerts self-healed without intervention."]
+      }
+    },
+    "5": {
+      "1": {
+        "fr": ["- Inventaire complet des configurations hors-code.", "- Premier dépôt Git d'intégration des flux concernés."],
+        "en": ["- Complete inventory of out-of-code configurations.", "- First Git repo integrating the affected flows."]
+      },
+      "2": {
+        "fr": ["- % des demandes courantes traitées sans intervention manuelle.", "- Dépendance aux experts isolés mesurée et réduite."],
+        "en": ["- % of routine requests handled with no manual work.", "- Measured, shrinking reliance on isolated experts."]
+      },
+      "3": {
+        "fr": ["- Taux d'automatisation courant des demandes.", "- Nombre d'équipes pilotes sur le portail IDP."],
+        "en": ["- Current request automation rate.", "- Number of pilot teams on the IDP."]
+      },
+      "4": {
+        "fr": ["- % de l'infrastructure conforme au modèle GitOps.", "- Temps moyen pour disposer d'une ressource en self-service."],
+        "en": ["- % of infrastructure GitOps-compliant.", "- Average time to spin up a self-service resource."]
+      }
+    },
+    "6": {
+      "1": {
+        "fr": ["- % de déploiements sans intervention manuelle.", "- Première suite E2E automatisée au vert."],
+        "en": ["- % of deploys with no manual intervention.", "- First green automated E2E suite."]
+      },
+      "2": {
+        "fr": ["- 100% des ingénieurs disposent de jeux de données / comptes de test standardisés.", "- Temps de validation du CAB réduit d'au moins 30%."],
+        "en": ["- 100% of engineers have standard test accounts/data sets.", "- CAB validation time cut by at least 30%."]
+      },
+      "3": {
+        "fr": ["- % de vérifications post-MEP automatisées.", "- Couverture E2E des parcours critiques."],
+        "en": ["- % of post-deploy checks automated.", "- E2E coverage on critical journeys."]
+      },
+      "4": {
+        "fr": ["- % de services déployés en canary.", "- Temps de détection des régressions en production."],
+        "en": ["- % of services released via canary.", "- Time-to-detect production regressions."]
+      }
+    },
+    "7": {
+      "1": {
+        "fr": ["- Cartographie de l'outillage publiée.", "- Référentiel de configuration unique validé."],
+        "en": ["- Published tooling map.", "- Validated single configuration repository."]
+      },
+      "2": {
+        "fr": ["- Matrice de rationalisation validée par le comité d'architecture.", "- % de nouveaux projets conformes à la Voie Pavée."],
+        "en": ["- Rationalization matrix validated by the architecture committee.", "- % of new projects compliant with the paved road."]
+      },
+      "3": {
+        "fr": ["- RTO mesuré sur les bascules critiques.", "- % de configurations auditées automatiquement."],
+        "en": ["- Measured RTO on critical failovers.", "- % of configurations auto-audited."]
+      },
+      "4": {
+        "fr": ["- Taux de redondance résiduelle par domaine.", "- Adoption de la stack de référence via l'IDP."],
+        "en": ["- Residual redundancy rate per domain.", "- Reference-stack adoption via the IDP."]
+      }
+    }
+  },
+  "lt_year1": {
+    "1": {
+      "1": { "fr": "Collecte centralisée et saine de la donnée d'observabilité sur le socle applicatif critique.", "en": "Clean centralized observability data on the critical application stack." },
+      "2": { "fr": "Routage automatique des alertes selon les symptômes utilisateurs et les périmètres applicatifs, sans intervention manuelle.", "en": "Automatic alert routing based on user symptoms and application scopes, with no manual legwork." },
+      "3": { "fr": "Observabilité métier alignée sur les parcours utilisateurs et accessible à toutes les équipes produit.", "en": "Business-level observability aligned to user journeys, accessible to all product teams." },
+      "4": { "fr": "Pérenniser l'écosystème unifié : gouvernance des sources, qualité des données et standard partagé.", "en": "Sustain the unified ecosystem: source governance, data quality and a shared standard." }
+    },
+    "2": {
+      "1": { "fr": "Premiers SLO métier suivis en continu sur les parcours clients critiques.", "en": "First business SLOs monitored continuously on critical customer journeys." },
+      "2": { "fr": "SLO métier intégrés et visibles en temps réel par les équipes produit et le métier.", "en": "Business SLOs integrated and visible in real time to product teams and the business." },
+      "3": { "fr": "Error Budget opérationnel : burn rate suivi et budgets partagés entre équipes.", "en": "Operational Error Budget: burn rate tracked, budgets shared across teams." },
+      "4": { "fr": "Consolider la gouvernance : transparence totale de la donnée de performance portée par le collectif.", "en": "Consolidate governance: full performance-data transparency owned by the collective." }
+    },
+    "3": {
+      "1": { "fr": "Post-mortems sans blâme généralisés et revue transverse des incidents.", "en": "Blameless post-mortems generalized with cross-team incident reviews." },
+      "2": { "fr": "Gestion rationnelle des problèmes : actions pérennes financées et diffusion transverse des retours d'expérience.", "en": "Rational problem management: funded corrective actions and org-wide lessons learned." },
+      "3": { "fr": "Exercices de résilience réguliers et financés à partir de l'Error Budget.", "en": "Regular funded resilience exercises backed by the Error Budget." },
+      "4": { "fr": "Pérenniser la gouvernance active et l'apprentissage par l'échec institutionnalisé.", "en": "Sustain active governance and institutionalized learning from failure." }
+    },
+    "4": {
+      "1": { "fr": "Toil chiffré et piloté : les tâches répétitives sont connues et réduites progressivement.", "en": "Measured and managed Toil: repetitive tasks are known and shrinking." },
+      "2": { "fr": "Toil réduit sur les tâches les plus récurrentes, runbooks pas-à-pas disponibles la nuit.", "en": "Toil reduced on the most recurrent tasks; step-by-step runbooks available at night." },
+      "3": { "fr": "Automatisation globale des opérations récurrentes et premier transfert significatif vers le N1.", "en": "Global automation of recurrent operations with a significant first N1 hand-off." },
+      "4": { "fr": "Sanctuarisation du temps d'ingénierie : astreintes équilibrées, alertes ne nécessitant que de l'ingénierie.", "en": "Engineer time sanctified: balanced rotations, alerts that only summon engineering." }
+    },
+    "5": {
+      "1": { "fr": "Les scripts évoluent vers un catalogue outillé, exécuté de manière contrôlée.", "en": "Scripts graduate to a tooled, centrally executed catalogue." },
+      "2": { "fr": "Catalogue de services outillé : les demandes courantes sont traitées automatiquement.", "en": "Tooled service catalogue: routine requests processed automatically." },
+      "3": { "fr": "Catalogue étendu et premier portail d'ingénierie interne (IDP) opérationnel.", "en": "Extended catalogue and first operational internal developer portal (IDP)." },
+      "4": { "fr": "Consolider l'écosystème : conformité déclarative mesurée et autonomie IDP accrue.", "en": "Consolidate the ecosystem: measured declarative compliance, more IDP autonomy." }
+    },
+    "6": {
+      "1": { "fr": "Livraison industrialisée et testée avant mise en production.", "en": "Industrialized, tested-before-production delivery." },
+      "2": { "fr": "Tests de bout en bout systématiques et scans DevSecOps bloquants.", "en": "Systematic E2E tests and blocking DevSecOps scans." },
+      "3": { "fr": "MEP sans vérifications manuelles : E2E systématiques et canary structurés sur le socle.", "en": "No manual post-deploy checks: systematic E2E and structured canaries on the platform." },
+      "4": { "fr": "Consolider GitOps & Canary : généralisation et gouvernance des métriques de release.", "en": "Consolidate GitOps & canary: generalization and release-metric governance." }
+    },
+    "7": {
+      "1": { "fr": "La CMDB (ou l'IaC) devient la source de vérité de l'état du système.", "en": "CMDB (or IaC) becomes the system-of-truth for configuration." },
+      "2": { "fr": "Voie Pavée opérationnelle : les doublons d'outils reculent et la CMDB se stabilise.", "en": "Paved road operational: tool duplicates recede, CMDB stabilizes." },
+      "3": { "fr": "Bascules régulières et auditées ; la donnée de configuration circule par le code.", "en": "Regular audited failovers; configuration flows through code." },
+      "4": { "fr": "Consolider la sobriété : référentiel partagé et gouvernance de la Voie Pavée.", "en": "Consolidate sobriety: shared repository and paved-road governance." }
+    }
+  },
+  "lt_transform": {
+    "1": {
+      "1": { "fr": "Écosystème d'observabilité unifié (traces/logs/métriques) avec détection prédictive par IA et routage automatique des alertes.", "en": "Unified observability ecosystem (traces/logs/metrics) with AI-driven predictive detection and automatic alert routing." },
+      "2": { "fr": "Source unique d'observabilité corrélée avec détection prédictive par IA et observabilité de sécurité native (RASP).", "en": "Single correlated observability source with AI predictive detection and native security observability (RASP)." },
+      "3": { "fr": "Écosystème unifié avec détection prédictive par IA, corrélation native de bout en bout et routage automatique complet.", "en": "Unified ecosystem with AI predictive detection, end-to-end native correlation and fully automatic routing." },
+      "4": { "fr": "Observabilité proactive pilotée par IA (AIOps) : détection prédictive, corrélation native et isolation automatique des workloads.", "en": "AI-driven proactive observability (AIOps): predictive detection, native correlation and automatic workload isolation." }
+    },
+    "2": {
+      "1": { "fr": "Gouvernance par l'Error Budget : les SLO arbitrent automatiquement les releases et l'allocation des ressources de run.", "en": "Error-budget governance: SLOs automatically arbitrate releases and run-resource allocation." },
+      "2": { "fr": "Arbitrage algorithmique partagé : gel de release ou allocation de run décidés par l'Error Budget.", "en": "Shared algorithmic arbitrage: release freeze or run allocation decided by the Error Budget." },
+      "3": { "fr": "La fiabilité portée comme objectif d'entreprise : les SLO arbitrent la feuille de route produit et l'optimisation FinOps.", "en": "Reliability as an enterprise objective: SLOs arbitrate the product roadmap and FinOps optimization." },
+      "4": { "fr": "Culture produit unifiée où la fiabilité est un objectif d'entreprise, avec optimisation dynamique continue de la capacité.", "en": "Unified product culture where reliability is an enterprise objective, with continuous dynamic capacity optimization." }
+    },
+    "3": {
+      "1": { "fr": "Chaos Engineering industrialisé et automatisé en production (Game Days réguliers) pour valider en continu la résilience.", "en": "Industrialized automated Chaos Engineering in production (regular Game Days) continuously validating resilience." },
+      "2": { "fr": "Gouvernance active : l'Error Budget bloque automatiquement les releases et le Chaos Engineering est continu en production.", "en": "Active governance: the Error Budget auto-blocks releases with continuous in-production Chaos Engineering." },
+      "3": { "fr": "Chaos Engineering automatisé en continu en production : validation permanente de la résilience et de la continuité.", "en": "Continuous automated in-production Chaos Engineering: permanent validation of resilience and continuity." },
+      "4": { "fr": "L'apprentissage par l'échec est institutionnalisé : Game Days collectifs, Error Budget bloquant les releases, chaos continu.", "en": "Failure is institutionalized: collective Game Days, Error Budget blocking releases, continuous chaos." }
+    },
+    "4": {
+      "1": { "fr": "Toil plafonné à 50% du temps machine, alertes auto-résorbées et astreintes partagées équitablement (Dev/SRE).", "en": "Toil capped at 50% of engineering time, self-healing alerts, on-call shared fairly (Dev/SRE)." },
+      "2": { "fr": "Boucles d'auto-remédiation (Heal-on-alert) : zéro ticket humain sur les alertes connues.", "en": "Self-healing loops (heal-on-alert): zero human tickets on known alerts." },
+      "3": { "fr": "Plafond de Toil à 50% max, éradication des tickets manuels redondants et alertes résorbées automatiquement.", "en": "Toil capped at 50%, redundant manual tickets eradicated, alerts auto-resolved." },
+      "4": { "fr": "Temps sanctuarisé : plafond de Toil à 50%, auto-remédiation systématique et astreintes Dev/SRE équitables.", "en": "Sanctified time: Toil capped at 50%, systematic self-healing, fair Dev/SRE rotations." }
+    },
+    "5": {
+      "1": { "fr": "Portail d'ingénierie interne (IDP) : autonomie instantanée des équipes sans ticket et modèle 100% déclaratif (GitOps).", "en": "Internal developer portal (IDP): teams self-serve without tickets, fully declarative model (GitOps)." },
+      "2": { "fr": "IDP complet : autonomie instantanée sans ticket et GitOps 100% déclaratif avec réconciliation automatique.", "en": "Full IDP: instant self-service without tickets, fully declarative GitOps with automatic reconciliation." },
+      "3": { "fr": "GitOps 100% déclaratif : tout écart hors code est écrasé et réconcilié automatiquement.", "en": "Fully declarative GitOps: any out-of-code drift is wiped and reconciled automatically." },
+      "4": { "fr": "Autonomie totale sous contrôle : l'IDP couvre livraison, coûts et sécurité, et tout écart hors code est écrasé.", "en": "Full governed autonomy: the IDP spans delivery, cost and security; any out-of-code drift is wiped." }
+    },
+    "6": {
+      "1": { "fr": "Compliance-as-Code remplaçant le CAB humain, canary piloté par l'état des SLO en temps réel.", "en": "Compliance-as-Code replacing the human CAB; canary releases driven by real-time SLO health." },
+      "2": { "fr": "Compliance-as-Code : suppression du CAB humain et canary managé par le code corrélé aux SLO en temps réel.", "en": "Compliance-as-Code: no human CAB; code-managed canary correlated to real-time SLOs." },
+      "3": { "fr": "GitOps & Canary managés par le code, corrélés aux retours SLO en temps réel (zéro validation humaine).", "en": "Code-managed GitOps & canary correlated to real-time SLO feedback (zero human validation)." },
+      "4": { "fr": "Zéro CAB humain : Compliance-as-Code validant les métriques automatiquement et canary managés par le code.", "en": "No human CAB: Compliance-as-Code validates metrics automatically, canaries code-managed." }
+    },
+    "7": {
+      "1": { "fr": "Stack minimaliste et découplée, bascules inter-régions automatisées et zéro redondance d'outils.", "en": "Minimalist decoupled stack, automated cross-region failovers, zero tool redundancy." },
+      "2": { "fr": "Dépôt Git (IaC) comme source de vérité unique, découplage complet et orchestration automatisée des bascules.", "en": "Git (IaC) as the single truth, full decoupling, automated failover orchestration." },
+      "3": { "fr": "Sobriété native : audit de configuration continu, code mort et ressources inutilisées éliminés automatiquement.", "en": "Native sobriety: continuous config audit, dead code and unused resources auto-eliminated." },
+      "4": { "fr": "Stack minimaliste optimisée et partagée via l'IDP, zéro redondance et bascules inter-régions sans interruption.", "en": "Minimalist optimized stack shared via the IDP, zero redundancy, interruption-free cross-region failovers." }
+    }
+  }
+}

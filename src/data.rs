@@ -1,4 +1,4 @@
-use crate::models::{MatrixData, RoadmapData};
+use crate::models::{MatrixData, RoadmapData, RoadmapTemplates};
 
 // Static content extracted from the legacy HTML pages.
 // Embedded at compile time; deserialised once at app init.
@@ -9,12 +9,19 @@ pub const MATRIX_JSON: &str = include_str!("data/matrix.json");
 /// Static SRE roadmap content.
 pub const ROADMAP_JSON: &str = include_str!("data/roadmap.json");
 
+/// Bilingual roadmap generation template bank.
+pub const ROADMAP_GEN_JSON: &str = include_str!("data/roadmap_gen.json");
+
 pub fn matrix() -> MatrixData {
     serde_json::from_str(MATRIX_JSON).expect("embedded matrix.json is valid")
 }
 
 pub fn roadmap() -> RoadmapData {
     serde_json::from_str(ROADMAP_JSON).expect("embedded roadmap.json is valid")
+}
+
+pub fn roadmap_templates() -> RoadmapTemplates {
+    serde_json::from_str(ROADMAP_GEN_JSON).expect("embedded roadmap_gen.json is valid")
 }
 
 #[cfg(test)]
@@ -54,5 +61,47 @@ mod tests {
     fn embedded_json_is_valid() {
         serde_json::from_str::<serde_json::Value>(MATRIX_JSON).unwrap();
         serde_json::from_str::<serde_json::Value>(ROADMAP_JSON).unwrap();
+        serde_json::from_str::<serde_json::Value>(ROADMAP_GEN_JSON).unwrap();
+    }
+
+    #[test]
+    fn roadmap_templates_cover_7_principles_4_levels() {
+        let t = roadmap_templates();
+        for num in 1..=7 {
+            let n = num.to_string();
+            for lvl in 1..=4 {
+                let l = lvl.to_string();
+                assert!(t.constat[&n].contains_key(&l), "constat missing {n}/{l}");
+                assert!(
+                    t.st_actions[&n].contains_key(&l) && !t.st_actions[&n][&l].fr.is_empty(),
+                    "st_actions missing {n}/{l}"
+                );
+                assert!(
+                    t.st_kpi[&n].contains_key(&l) && !t.st_kpi[&n][&l].en.is_empty(),
+                    "st_kpi missing {n}/{l}"
+                );
+                assert!(t.lt_year1[&n].contains_key(&l), "lt_year1 missing {n}/{l}");
+                assert!(
+                    t.lt_transform[&n].contains_key(&l),
+                    "lt_transform missing {n}/{l}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn roadmap_templates_are_bilingual() {
+        let t = roadmap_templates();
+        for cell in t.constat.values().flat_map(|lv| lv.values()) {
+            assert!(!cell.fr.is_empty() && !cell.en.is_empty());
+        }
+        for lines in t
+            .st_actions
+            .values()
+            .flat_map(|lv| lv.values())
+            .chain(t.st_kpi.values().flat_map(|lv| lv.values()))
+        {
+            assert!(!lines.fr.is_empty() && !lines.en.is_empty());
+        }
     }
 }

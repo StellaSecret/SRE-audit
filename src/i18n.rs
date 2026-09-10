@@ -163,6 +163,8 @@ fn en(key: &str) -> &str {
         "roadmap_generate" => "Generate from matrix",
         "roadmap_gen_ok" => "Roadmap filled from the matrix (empty cells only).",
         "roadmap_gen_noselection" => "Select maturity levels in the matrix first.",
+        "roadmap_note_label" => "Audit note",
+        "roadmap_tools_label" => "Involved tools",
 
         "drive_hint" => "Your data is stored locally in this browser. Use “Backup to Drive” to save to your own private Google Drive app folder.",
 
@@ -255,6 +257,8 @@ fn fr(key: &str) -> &str {
         "roadmap_generate" => "Générer depuis la matrice",
         "roadmap_gen_ok" => "Feuille de route remplie depuis la matrice (cellules vides uniquement).",
         "roadmap_gen_noselection" => "Sélectionnez d'abord des niveaux de maturité dans la matrice.",
+        "roadmap_note_label" => "Note d'audit",
+        "roadmap_tools_label" => "Outils impliqués",
 
         "drive_hint" => "Vos données sont stockées localement dans ce navigateur. Utilisez \"Sauvegarder sur Drive\" pour les enregistrer dans votre dossier Google Drive privé de l'application.",
 
