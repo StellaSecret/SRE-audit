@@ -19,6 +19,15 @@ fn matrix_row(data: &MatrixData, num: u8) -> Option<&MatrixRow> {
     data.rows.iter().find(|r| r.num == num)
 }
 
+/// How the generator writes draft cells: only empty ones (default, keeps the
+/// auditor's manual edits) or overwriting everything for the selected rows.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum GenMode {
+    #[default]
+    FillEmpty,
+    Overwrite,
+}
+
 fn level_at(row: &MatrixRow, level: u8) -> Option<&MatrixLevel> {
     row.levels.get(level.checked_sub(1)? as usize)
 }
@@ -39,12 +48,13 @@ fn fill_cell(
     key: &str,
     idx: usize,
     value: &str,
+    force: bool,
 ) {
     let entry = map.entry(key.to_string()).or_default();
     if entry.len() <= idx {
         entry.resize(idx + 1, String::new());
     }
-    if entry[idx].is_empty() {
+    if force || entry[idx].is_empty() {
         entry[idx] = value.to_string();
     }
 }
@@ -179,7 +189,8 @@ fn build_constat(
 }
 
 /// Draft the roadmap for the current matrix selection. Rows without a
-/// selected level are left untouched; existing cell content is preserved.
+/// selected level are left untouched; with `GenMode::FillEmpty` existing cell
+/// content is preserved, with `GenMode::Overwrite` every cell is replaced.
 pub fn fill_draft(
     state: &mut RoadmapState,
     roadmap: &RoadmapData,
@@ -187,7 +198,10 @@ pub fn fill_draft(
     sel: &MatrixState,
     templates: &RoadmapTemplates,
     lang: Lang,
+    gen_mode: GenMode,
 ) {
+    let force = gen_mode == GenMode::Overwrite;
+
     for st_row in &roadmap.st {
         let Some(level) = sel.selected_level(st_row.num) else {
             continue;
@@ -206,6 +220,7 @@ pub fn fill_draft(
             &st_row.id,
             0,
             &build_constat(templates, st_row.num, level, lang, comment),
+            force,
         );
         fill_cell(
             &mut state.st,
@@ -214,6 +229,7 @@ pub fn fill_draft(
             &tpl_lines(&templates.st_actions, st_row.num, level, lang)
                 .unwrap_or_default()
                 .join("\n"),
+            force,
         );
         fill_cell(
             &mut state.st,
@@ -222,6 +238,7 @@ pub fn fill_draft(
             &tpl_lines(&templates.st_kpi, st_row.num, level, lang)
                 .unwrap_or_default()
                 .join("\n"),
+            force,
         );
     }
 
@@ -238,13 +255,25 @@ pub fn fill_draft(
             &lt_row.id,
             0,
             &tpl_string(&templates.lt_year1, lt_row.num, level, lang).unwrap_or_default(),
+            force,
         );
         fill_cell(
             &mut state.lt,
             &lt_row.id,
             1,
             &tpl_string(&templates.lt_transform, lt_row.num, level, lang).unwrap_or_default(),
+            force,
         );
+    }
+}
+
+/// Empty every roadmap cell (all rows, both horizons), keeping the layout.
+pub fn clear(state: &mut RoadmapState) {
+    for v in state.st.values_mut() {
+        v.fill(String::new());
+    }
+    for v in state.lt.values_mut() {
+        v.fill(String::new());
     }
 }
 
@@ -271,7 +300,15 @@ mod tests {
             ..Default::default()
         };
         let mut state = RoadmapState::default();
-        fill_draft(&mut state, &roadmap, &matrix, &sel, &templates, Lang::Fr);
+        fill_draft(
+            &mut state,
+            &roadmap,
+            &matrix,
+            &sel,
+            &templates,
+            Lang::Fr,
+            GenMode::FillEmpty,
+        );
 
         let st = state.st.get("st_slo").unwrap();
         assert!(st[0].contains("Note d'audit : Des SLA purement contractuels."));
@@ -294,7 +331,15 @@ mod tests {
             ..Default::default()
         };
         let mut state = RoadmapState::default();
-        fill_draft(&mut state, &roadmap, &matrix, &sel, &templates, Lang::Fr);
+        fill_draft(
+            &mut state,
+            &roadmap,
+            &matrix,
+            &sel,
+            &templates,
+            Lang::Fr,
+            GenMode::FillEmpty,
+        );
 
         let st = state.st.get("st_simp").unwrap();
         assert!(st[0].contains("Architecture native et sobre"));
@@ -327,7 +372,15 @@ mod tests {
             .collect(),
             ..Default::default()
         };
-        fill_draft(&mut state, &roadmap, &matrix, &sel, &templates, Lang::Fr);
+        fill_draft(
+            &mut state,
+            &roadmap,
+            &matrix,
+            &sel,
+            &templates,
+            Lang::Fr,
+            GenMode::FillEmpty,
+        );
 
         let st = state.st.get("st_slo").unwrap();
         assert_eq!(st[0], "déjà rédigé");
@@ -342,6 +395,74 @@ mod tests {
             .st
             .get("st_toil")
             .is_none_or(|v| v.iter().all(|c| c.is_empty())));
+    }
+
+    #[test]
+    fn overwrite_mode_replaces_existing_cells() {
+        let (roadmap, matrix, templates) = base();
+        let sel = MatrixState {
+            selections: [("2".to_string(), "2".to_string())].into_iter().collect(),
+            comments: [(
+                "2".to_string(),
+                "Des SLA purement contractuels.".to_string(),
+            )]
+            .into_iter()
+            .collect(),
+            ..Default::default()
+        };
+        let mut state = RoadmapState {
+            st: [(
+                "st_slo".to_string(),
+                vec![
+                    "contenu manuel".to_string(),
+                    String::new(),
+                    "KPI internes".to_string(),
+                ],
+            )]
+            .into_iter()
+            .collect(),
+            ..Default::default()
+        };
+        fill_draft(
+            &mut state,
+            &roadmap,
+            &matrix,
+            &sel,
+            &templates,
+            Lang::Fr,
+            GenMode::Overwrite,
+        );
+
+        let st = state.st.get("st_slo").unwrap();
+        assert!(st[0].contains("Note d'audit : Des SLA purement contractuels."));
+        assert!(st[1].contains("- M1-M2 : Co-concevoir avec le métier"));
+        assert!(st[2].contains("3 conventions de SLO métier validées"));
+        assert!(state
+            .st
+            .get("st_obs")
+            .is_none_or(|v| v.iter().all(|c| c.is_empty())));
+    }
+
+    #[test]
+    fn clear_empties_every_cell() {
+        let (_, _, _) = base();
+        let mut state = RoadmapState {
+            st: [(
+                "st_slo".to_string(),
+                vec!["a".to_string(), "b".to_string(), "c".to_string()],
+            )]
+            .into_iter()
+            .collect(),
+            lt: [("lt_slo".to_string(), vec!["x".to_string(), "y".to_string()])]
+                .into_iter()
+                .collect(),
+        };
+        assert_eq!(state.field("st_slo", 0), "a");
+        clear(&mut state);
+        assert_eq!(state.field("st_slo", 0), "");
+        assert_eq!(state.field("st_slo", 2), "");
+        assert_eq!(state.field("lt_slo", 1), "");
+        assert!(state.st.iter().all(|(_, v)| v.iter().all(|c| c.is_empty())));
     }
 
     #[test]
@@ -432,7 +553,15 @@ mod tests {
 
         for lang in [Lang::Fr, Lang::En] {
             let mut state = RoadmapState::default();
-            fill_draft(&mut state, &roadmap, &matrix, &sel, &templates, lang);
+            fill_draft(
+                &mut state,
+                &roadmap,
+                &matrix,
+                &sel,
+                &templates,
+                lang,
+                GenMode::FillEmpty,
+            );
 
             let note_label = i18n::tr("roadmap_note_label", lang);
             let tools_label = i18n::tr("roadmap_tools_label", lang);

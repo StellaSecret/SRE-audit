@@ -3,7 +3,36 @@ use sre_audit::data;
 use sre_audit::i18n;
 use sre_audit::models::RoadmapState;
 use sre_audit::orgs::OrgStore;
+use sre_audit::services::roadmap_gen::{self, GenMode};
 use sre_audit::services::{drive, storage};
+
+/// Maximum number of undo snapshots kept in-session.
+const UNDO_CAP: usize = 10;
+
+/// Record an undo snapshot before a mutating action, capped to `UNDO_CAP`.
+fn push_undo(mut stack: Signal<Vec<RoadmapState>>, before: &RoadmapState) {
+    let mut s = stack.write();
+    s.push(before.clone());
+    if s.len() > UNDO_CAP {
+        s.remove(0);
+    }
+}
+
+/// Ask the user before a destructive action. On native (non-wasm) the
+/// dialogs don't exist and the action is simply allowed.
+fn confirm_action(message: &str) -> bool {
+    #[cfg(target_arch = "wasm32")]
+    {
+        web_sys::window()
+            .and_then(|w| w.confirm_with_message(message).ok())
+            .unwrap_or(false)
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = message;
+        true
+    }
+}
 
 /// Row ids of the legacy roadmap cache — ST and LT tables have a fixed order
 /// mirroring `src/data/roadmap.json`. Kept here (rather than captured through
@@ -88,6 +117,7 @@ pub fn Roadmap() -> Element {
     });
     let mut flash = use_signal(|| Option::<String>::None);
     let mut busy = use_signal(|| false);
+    let mut undo_stack = use_signal(Vec::<RoadmapState>::new);
 
     let t_title = i18n::tr("roadmap_title", l);
     let t_meta = i18n::tr("roadmap_meta", l);
@@ -98,6 +128,9 @@ pub fn Roadmap() -> Element {
     let t_st_title = i18n::tr("roadmap_st_title", l);
     let t_lt_title = i18n::tr("roadmap_lt_title", l);
     let t_generate = i18n::tr("roadmap_generate", l);
+    let t_gen_force = i18n::tr("roadmap_gen_overwrite", l);
+    let t_clear = i18n::tr("roadmap_clear", l);
+    let t_undo = i18n::tr("roadmap_undo", l);
 
     let st_badges: Vec<(u8, String)> = data
         .st
@@ -203,18 +236,83 @@ pub fn Roadmap() -> Element {
                 return;
             }
             let mut s = state.read().clone();
-            sre_audit::services::roadmap_gen::fill_draft(
+            let before = s.clone();
+            roadmap_gen::fill_draft(
                 &mut s,
                 &roadmap_data,
                 &matrix_data,
                 &sel,
                 &templates,
                 l,
+                GenMode::FillEmpty,
             );
+            if s == before {
+                return;
+            }
+            push_undo(undo_stack, &before);
             state.set(s.clone());
             storage::save_roadmap(&id, &s);
             flash.set(Some(i18n::tr("roadmap_gen_ok", l)));
         }
+    };
+
+    let do_force_generate = {
+        let roadmap_data = data.clone();
+        let matrix_data = base_matrix.clone();
+        let templates = base_templates.clone();
+        move |_: MouseEvent| {
+            let id = current.read().current.clone();
+            let Some(sel) = storage::load_matrix(&id) else {
+                flash.set(Some(i18n::tr("roadmap_gen_noselection", l)));
+                return;
+            };
+            if sel.selections.is_empty() {
+                flash.set(Some(i18n::tr("roadmap_gen_noselection", l)));
+                return;
+            }
+            if !confirm_action(&i18n::tr("roadmap_confirm_overwrite", l)) {
+                return;
+            }
+            let mut s = state.read().clone();
+            let before = s.clone();
+            roadmap_gen::fill_draft(
+                &mut s,
+                &roadmap_data,
+                &matrix_data,
+                &sel,
+                &templates,
+                l,
+                GenMode::Overwrite,
+            );
+            push_undo(undo_stack, &before);
+            state.set(s.clone());
+            storage::save_roadmap(&id, &s);
+            flash.set(Some(i18n::tr("roadmap_gen_forced", l)));
+        }
+    };
+
+    let do_clear = move |_: MouseEvent| {
+        if !confirm_action(&i18n::tr("roadmap_confirm_clear", l)) {
+            return;
+        }
+        let id = current.read().current.clone();
+        let mut s = state.read().clone();
+        let before = s.clone();
+        roadmap_gen::clear(&mut s);
+        push_undo(undo_stack, &before);
+        state.set(s.clone());
+        storage::save_roadmap(&id, &s);
+        flash.set(Some(i18n::tr("roadmap_clear_ok", l)));
+    };
+
+    let do_undo = move |_: MouseEvent| {
+        let Some(previous) = undo_stack.write().pop() else {
+            return;
+        };
+        let id = current.read().current.clone();
+        state.set(previous.clone());
+        storage::save_roadmap(&id, &previous);
+        flash.set(Some(i18n::tr("roadmap_undo_ok", l)));
     };
 
     rsx! {
@@ -242,6 +340,16 @@ pub fn Roadmap() -> Element {
                 }
                 button { class: "btn btn-export", onclick: do_generate, disabled: busy(),
                     "{t_generate}"
+                }
+                button { class: "btn btn-export", onclick: do_force_generate, disabled: busy(),
+                    "{t_gen_force}"
+                }
+                button { class: "btn btn-export", onclick: do_clear, disabled: busy(),
+                    "{t_clear}"
+                }
+                button { class: "btn btn-export", onclick: do_undo,
+                    disabled: busy() || undo_stack().is_empty(),
+                    "{t_undo}"
                 }
                 input { id: "roadmap-import-input", r#type: "file", accept: ".json",
                     style: "display:none", onchange: do_import_json }
