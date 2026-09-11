@@ -98,19 +98,15 @@ fn tpl_lines(
 /// Token match with word boundaries, so short needles ("sql", "cft", "elk")
 /// never match inside longer words ("MySQL", "postgresql").
 fn contains_token(lower: &str, needle: &str) -> bool {
-    let mut start = 0;
-    while let Some(rel) = lower[start..].find(needle) {
-        let i = start + rel;
+    // Iterate (never hand-rolled pointers) so mutating an operator cannot
+    // spin a `start = .. + 1` loop forever under mutation testing.
+    lower.match_indices(needle).any(|(i, m)| {
         let before_ok = i == 0 || !lower[..i].chars().last().unwrap().is_alphanumeric();
-        let after = i + needle.len();
+        let after = i + m.len();
         let after_ok =
             after >= lower.len() || !lower[after..].chars().next().unwrap().is_alphanumeric();
-        if before_ok && after_ok {
-            return true;
-        }
-        start = i + 1;
-    }
-    false
+        before_ok && after_ok
+    })
 }
 
 /// Tool names mentioned in the note, canonicalised and de-duplicated, keeping
@@ -284,6 +280,18 @@ mod tests {
 
     fn base() -> (RoadmapData, MatrixData, RoadmapTemplates) {
         (data::roadmap(), data::matrix(), data::roadmap_templates())
+    }
+
+    #[test]
+    fn contains_token_respects_word_boundaries() {
+        let lower = "postgresql et mysql, gitlab-ci et elkgraph";
+        assert!(!contains_token(lower, "sql"), "inside postgresql");
+        assert!(contains_token(lower, "mysql"), "standalone keyword");
+        assert!(contains_token(lower, "gitlab-ci"), "hyphenated token");
+        assert!(!contains_token(lower, "elk"), "inside elkgraph");
+        assert!(contains_token(lower, "et"), "standalone short token");
+        assert!(contains_token("jenkins", "jenkins"), "string equals token");
+        assert!(contains_token("", ""), "empty needle terminates");
     }
 
     #[test]

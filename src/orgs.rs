@@ -221,4 +221,69 @@ mod tests {
         assert!(!id.is_empty());
         assert!(id.chars().all(|c| c.is_ascii_hexdigit()));
     }
+
+    #[test]
+    fn default_org_is_detected() {
+        assert!(Organization {
+            id: String::new(),
+            name: "x".into(),
+        }
+        .is_default());
+        assert!(!Organization {
+            id: "a".into(),
+            name: "x".into(),
+        }
+        .is_default());
+    }
+
+    #[test]
+    fn add_returns_id_and_makes_current() {
+        let mut store = OrgStore::default();
+        let id = store.add("ACMÉ");
+        assert_eq!(store.current, id);
+        assert_eq!(store.orgs.len(), 1);
+        assert_eq!(store.orgs[0].id, id);
+        assert!(id.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    #[test]
+    fn empty_name_add_falls_back_to_default_label() {
+        let mut store = OrgStore::default();
+        store.add("   ");
+        assert_eq!(store.orgs[0].name, "Nouvelle organisation");
+    }
+
+    #[test]
+    fn org_list_helpers_manage_rename_and_remove() {
+        let mut store = OrgStore::default();
+        assert!(store.current_org().is_none());
+
+        let id = store.add("  ACME  ");
+        assert_eq!(store.current_org().map(|o| o.name.as_str()), Some("ACME"));
+
+        assert!(store.rename_org(&id, "  LCL  "));
+        assert_eq!(store.current_org().map(|o| o.name.as_str()), Some("LCL"));
+
+        assert!(!store.rename_org("missing", "X"));
+        assert_eq!(store.current_org().map(|o| o.name.as_str()), Some("LCL"));
+
+        assert_eq!(store.remove("missing"), None);
+        assert_eq!(store.remove(&id).as_deref(), Some("LCL"));
+        assert_eq!(store.current, "");
+        assert!(store.orgs.is_empty());
+    }
+
+    #[test]
+    fn now_ms_tracks_epoch() {
+        let a = now_ms();
+        assert!(a > 1_700_000_000_000, "now_ms is near the current epoch");
+        std::thread::sleep(std::time::Duration::from_millis(2));
+        let b = now_ms();
+        assert!(b >= a && b - a < 10_000);
+    }
+
+    #[test]
+    fn native_storage_is_absent() {
+        assert_eq!(load(), None);
+    }
 }

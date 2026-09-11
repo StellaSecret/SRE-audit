@@ -171,4 +171,11 @@ mod tests {
     fn base64url_rejects_invalid_char() {
         assert!(base64url_decode("ab=!").is_err());
     }
+
+    #[test]
+    fn base64url_skips_newlines_like_atob() {
+        // Standard tokens are folded onto one line; newlines must be ignored.
+        let dec = base64url_decode("YU\nBiLmM").unwrap();
+        assert_eq!(String::from_utf8(dec).unwrap(), "a@b.c");
+    }
 }

@@ -55,6 +55,53 @@ jobs:
       - name: Check WASM build
         run: cargo check --target wasm32-unknown-unknown --bin sre-audit
 
+  # ── MUTATION TESTS (cargo-mutants) ────────────────────
+  # Guards the pure-logic files with ~140 viable mutants on a single runner
+  # (small crate → one parallel invocation, no sharding needed).
+  #
+  # Scope decision: excluded because they can never be observed or are
+  # deliberately wasm-glue:
+  #   - src/i18n.rs / src/config.rs (option_env! statics) / src/main.rs (Dioxus)
+  #   - src/services/auth.rs, print.rs, storage.rs → wasm/network shims
+  #   - is_allowed (false without build-time PREMIUM_EMAILS), JWT padding arms,
+  #     the base64 OR→XOR case (output-identical padded decoder), the wasm
+  #     upload/download shims in drive.rs, the wasm-gated load/save in orgs.rs
+  #     and the native no-op of Theme::persist.
+  # cargo-mutants exits non-zero on survived/timeout mutants, so a regression
+  # that weakens the golden tests breaks the run.
+  mutants:
+    name: Mutation Tests
+    needs: [rust-core]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants
+      - name: Run mutation tests
+        run: |
+          set -o pipefail
+          cargo mutants \
+            -f src/services/roadmap_gen.rs \
+            -f src/services/gate.rs \
+            -f src/services/drive.rs \
+            -f src/data.rs -f src/models.rs \
+            -f src/orgs.rs -f src/theme.rs \
+            --exclude-re '(gate\.rs:(19:5|69:39|70:9|71:9|98:26)|drive\.rs:(103:5|104:8|116:5|184:5|191:5|231:5|238:5)|orgs\.rs:(121:5|128:5)|theme\.rs:57:9)' \
+            --no-times --in-place -o mutants.out --timeout 300
+          echo "Mutation tests passed: $(wc -l < mutants.out/caught.txt 2>/dev/null || echo 0) caught, $(wc -l < mutants.out/missed.txt 2>/dev/null || echo 0) missed, $(wc -l < mutants.out/unviable.txt 2>/dev/null || echo 0) unviable"
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutants-out
+          path: mutants.out
+          retention-days: 30
+
   # ── WEB (WASM) BUILD ──────────────────────────────────
   web-build:
     name: Build WASM
@@ -203,7 +250,7 @@ jobs:
   deploy-web:
     name: Deploy to GitHub Pages
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [playwright-tests, web-build-prod]
+    needs: [playwright-tests, web-build-prod, mutants]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

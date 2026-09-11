@@ -65,3 +65,24 @@ impl Theme {
         let _ = s;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn toggle_switches_theme() {
+        assert_eq!(Theme::Dark.toggle(), Theme::Light);
+        assert_eq!(Theme::Light.toggle(), Theme::Dark);
+    }
+
+    #[test]
+    fn attributes_and_dark_detection() {
+        assert!(Theme::Dark.is_dark());
+        assert!(!Theme::Light.is_dark());
+        assert_eq!(Theme::Dark.attr(), "dark");
+        assert_eq!(Theme::Light.attr(), "light");
+        // On native the persisted storage does not exist: default is light.
+        assert_eq!(Theme::detect(), Theme::Light);
+    }
+}

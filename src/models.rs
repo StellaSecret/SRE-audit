@@ -144,3 +144,27 @@ pub struct RoadmapTemplates {
     pub lt_year1: BTreeMap<String, BTreeMap<String, LangStrings>>,
     pub lt_transform: BTreeMap<String, BTreeMap<String, LangStrings>>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn badge_class_formats_level() {
+        let lvl = MatrixLevel {
+            level: 3,
+            badge: "Proactif".into(),
+            items: vec![],
+        };
+        assert_eq!(lvl.badge_class(), "bg-lvl3");
+        assert_eq!(
+            MatrixLevel {
+                level: 1,
+                badge: "Réactif".into(),
+                items: vec![]
+            }
+            .badge_class(),
+            "bg-lvl1"
+        );
+    }
+}
