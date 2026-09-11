@@ -4,5 +4,13 @@
   "start_url": "../",
   "display": "standalone",
   "background_color": "#f1f5f9",
-  "theme_color": "#0f172a"
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "sre-audit-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
