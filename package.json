@@ -11,7 +11,7 @@
     "preview": "serve target/dx/sre-audit/release/web/public -p 4173"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "serve": "^14.2.6"
   }
 }

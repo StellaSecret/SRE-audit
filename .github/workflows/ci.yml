@@ -108,7 +108,7 @@ jobs:
     needs: [rust-core, scan-secrets]
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
@@ -164,7 +164,7 @@ jobs:
     needs: [web-build]
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
     strategy:
       fail-fast: false
       matrix:
@@ -198,7 +198,7 @@ jobs:
     needs: [rust-core, scan-secrets]
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
