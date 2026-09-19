@@ -40,6 +40,22 @@ jobs:
           head: ${{ github.sha }}
           extra_args: --only-verified
 
+  # ── SUPPLY CHAIN SCAN ─────────────────────────────────
+  # Advisories (known CVEs / yanked crates), license compliance, and
+  # dependency-source checks against deny.toml. Complements the secret
+  # scan above: that catches leaked credentials, this catches
+  # vulnerable or license-incompatible dependencies before they ship
+  # in the WASM/Android builds.
+  supply-chain:
+    name: Supply Chain (cargo-deny)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+          arguments: --all-features
+
   # ── RUST CORE ─────────────────────────────────────────
   rust-core:
     name: Rust Core (test + WASM check)
@@ -105,7 +121,7 @@ jobs:
   # ── WEB (WASM) BUILD ──────────────────────────────────
   web-build:
     name: Build WASM
-    needs: [rust-core, scan-secrets]
+    needs: [rust-core, scan-secrets, supply-chain]
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
@@ -195,7 +211,7 @@ jobs:
   web-build-prod:
     name: Build Production WASM
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [rust-core, scan-secrets]
+    needs: [rust-core, scan-secrets, supply-chain]
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
