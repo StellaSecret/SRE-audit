@@ -7,12 +7,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  security-events: write
-  actions: read
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -26,6 +21,8 @@ jobs:
   scan-secrets:
     name: Secret Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
         with:
@@ -49,6 +46,8 @@ jobs:
   supply-chain:
     name: Supply Chain (cargo-deny)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: EmbarkStudios/cargo-deny-action@v2
@@ -60,6 +59,8 @@ jobs:
   rust-core:
     name: Rust Core (test + WASM check)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
@@ -123,6 +124,8 @@ jobs:
     name: Build WASM
     needs: [rust-core, scan-secrets, supply-chain]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
@@ -179,6 +182,8 @@ jobs:
     name: Playwright Tests (shard ${{ matrix.shard }}/2)
     needs: [web-build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
@@ -210,9 +215,13 @@ jobs:
   # ── PRODUCTION WEB BUILD (real secrets, distinct from the e2e bundle) ─────
   web-build-prod:
     name: Build Production WASM
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [rust-core, scan-secrets, supply-chain]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: build
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
@@ -265,9 +274,13 @@ jobs:
   # no rebuild on the runner (bare apt is non-root and cannot lock apt lists).
   deploy-web:
     name: Deploy to GitHub Pages
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [playwright-tests, web-build-prod, mutants]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

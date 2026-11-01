@@ -144,6 +144,15 @@ dx serve --package sre-audit
 Sign-in requires a `GOOGLE_CLIENT_ID` and `PREMIUM_EMAILS` (comma-separated allowlist) at build
 time — see `src/config.rs`. Without them, the app builds but nobody can sign in.
 
+Both values are injected by CI from the **`build` environment** (restricted to `main`); they are
+not repository-level secrets. To update the allowlist locally, run
+[`update_premium_emails.sh`](update_premium_emails.sh) — it edits the git-ignored
+`.premium_emails.txt` and writes the `PREMIUM_EMAILS` environment secret via `gh`.
+
+> `PREMIUM_EMAILS` and `GOOGLE_CLIENT_ID` are compiled into the public WASM bundle. Treat them
+> as public values: the allowlist is a usability gate, not a credential (see
+> [Security notes](#security-notes)).
+
 ### End-to-end tests
 
 ```bash
@@ -165,15 +174,22 @@ build (CI guards against it — see below).
 3. **Web build (e2e bundle)** — built with the e2e flag and a fixed test allowlist, then
    verified to actually contain the e2e marker
 4. **Playwright e2e** — sharded across the e2e bundle
-5. **Production build** — rebuilt with real secrets, *without* the e2e flag, then verified to
-   **not** contain the e2e marker (fails the build otherwise — a safeguard against ever shipping
-   a soft-gated bundle)
-6. **Deploy** — publishes the production build to GitHub Pages on `main`
+5. **Production build** — runs only on `push` to `main`, using the protected **`build`**
+   environment secrets, *without* the e2e flag, then verified to **not** contain the e2e marker
+   (fails the build otherwise — a safeguard against ever shipping a soft-gated bundle)
+6. **Deploy** — runs only on `push` to `main` under the **`github-pages`** environment and
+   publishes the production build to GitHub Pages
+
+The workflow declares `permissions: {}` at the top and grants each job only what it needs
+(`contents: read` for tests/scans, `pages: write` + `id-token: write` for the deploy job).
+Production secrets are only available to the `build`-gated job. Configure both environments in
+Settings → Environments with deployment restricted to `main` (see [Security notes](#security-notes)).
 
 ## Security notes
 
 This is a static site with no backend: the email allowlist (`gate.rs`) is a **usability gate**,
-not a security boundary — a determined user could bypass a client-side check. Google
+not a security boundary — a determined user could bypass a client-side check. The allowlist is
+also embedded in the public WASM bundle, so it must not contain anything confidential. Google
 Identity Services still verifies the email server-side on every sign-in, and the CI pipeline
 guards against accidentally shipping the e2e bypass in production.
 
